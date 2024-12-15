@@ -1,98 +1,23 @@
 <template>
     <AppLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Bestandsänderung
-            </h2>
+            <div class="text-center w-full">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    Bestandsänderungen buchen
+                </h2>
+            </div>
         </template>
 
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <!-- Recent Movements -->
-                <div
-                    class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6 mb-6"
-                >
-                    <h3 class="text-lg font-medium mb-4">Letzte Bewegungen</h3>
-                    <div v-if="movements.data.length" class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead>
-                                <tr>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                    >
-                                        Datum
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                    >
-                                        Artikel
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                    >
-                                        Typ
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                    >
-                                        Menge
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                    >
-                                        Lagerort
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <tr
-                                    v-for="movement in movements.data"
-                                    :key="movement.id"
-                                >
-                                    <td
-                                        class="px-6 py-4 whitespace-nowrap text-sm"
-                                    >
-                                        {{ formatDate(movement.created_at) }}
-                                    </td>
-                                    <td
-                                        class="px-6 py-4 whitespace-nowrap text-sm"
-                                    >
-                                        {{ movement.article.name }}
-                                    </td>
-                                    <td
-                                        class="px-6 py-4 whitespace-nowrap text-sm"
-                                    >
-                                        <span
-                                            :class="getTypeClass(movement.type)"
-                                        >
-                                            {{ getTypeLabel(movement.type) }}
-                                        </span>
-                                    </td>
-                                    <td
-                                        class="px-6 py-4 whitespace-nowrap text-sm"
-                                    >
-                                        {{ movement.quantity }}
-                                    </td>
-                                    <td
-                                        class="px-6 py-4 whitespace-nowrap text-sm"
-                                    >
-                                        {{ getLocationName(movement) }}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <Pagination :links="movements.links" class="mt-6" />
-                    </div>
-                </div>
-
                 <div
                     class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6"
                 >
                     <!-- Scanner Button -->
-                    <div class="mb-4 text-right">
+                    <div class="mb-4 text-right w-full">
                         <button
                             @click="startScanner"
-                            class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700"
+                            class="w-full justify-center inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -220,7 +145,7 @@
                     <!-- Flash Messages -->
                     <div
                         v-if="flash.message || flash.warning"
-                        class="space-y-4 mt-4"
+                        class="space-y-4 mt-4 text-center"
                     >
                         <div
                             v-if="flash.message"
