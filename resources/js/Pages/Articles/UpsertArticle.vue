@@ -90,25 +90,6 @@
                                     {{ form.errors.barcode }}
                                 </div>
                             </div>
-
-                            <!-- QR Code -->
-                            <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-700"
-                                    >QR Code</label
-                                >
-                                <input
-                                    type="text"
-                                    v-model="form.qr_code"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                />
-                                <div
-                                    v-if="form.errors.qr_code"
-                                    class="text-red-500 text-sm mt-1"
-                                >
-                                    {{ form.errors.qr_code }}
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Beschreibung -->
@@ -244,7 +225,6 @@ const form = useForm({
     description: props.article?.description ?? "",
     minimum_stock: props.article?.minimum_stock ?? 0,
     barcode: props.article?.barcode ?? "",
-    qr_code: props.article?.qr_code ?? "",
     notes: props.article?.notes ?? "",
 });
 

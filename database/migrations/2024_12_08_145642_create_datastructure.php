@@ -14,7 +14,6 @@ return new class () extends Migration {
             $table->string('sku')->unique();
             $table->integer('minimum_stock')->default(0);
             $table->string('barcode')->nullable()->unique();
-            $table->string('qr_code')->nullable()->unique();
             $table->text('notes')->nullable();
             $table->timestamps();
             $table->softDeletes();
@@ -55,7 +54,6 @@ return new class () extends Migration {
             $table->string('name');
             $table->text('description')->nullable();
             $table->foreignId('shelf_id')->constrained()->onDelete('cascade');
-            $table->string('qr_code')->nullable()->unique();
             $table->string('barcode')->nullable()->unique();
             $table->text('notes')->nullable();
             $table->timestamps();

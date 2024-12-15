@@ -67,25 +67,6 @@
                             </div>
                         </div>
 
-                        <!-- QR Code -->
-                        <div class="mb-6">
-                            <label
-                                class="block text-sm font-medium text-gray-700"
-                                >QR Code</label
-                            >
-                            <input
-                                type="text"
-                                v-model="form.qr_code"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            />
-                            <div
-                                v-if="form.errors.qr_code"
-                                class="text-red-500 text-sm mt-1"
-                            >
-                                {{ form.errors.qr_code }}
-                            </div>
-                        </div>
-
                         <!-- Barcode -->
                         <div class="mb-6">
                             <label
@@ -191,7 +172,6 @@ const props = defineProps({
 const form = useForm({
     name: props.storageLocation?.name ?? "",
     shelf_id: props.storageLocation?.shelf_id ?? "",
-    qr_code: props.storageLocation?.qr_code ?? "",
     barcode: props.storageLocation?.barcode ?? "",
     description: props.storageLocation?.description ?? "",
     notes: props.storageLocation?.notes ?? "",
