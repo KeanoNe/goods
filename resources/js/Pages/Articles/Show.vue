@@ -72,10 +72,13 @@
                             </div>
                             <div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">
-                                    QR Code
+                                    Gesamtbestand
                                 </dt>
                                 <dd class="mt-1 text-sm text-gray-900">
-                                    {{ article.qr_code || "Nicht verfügbar" }}
+                                    {{
+                                        article.total_quantity ||
+                                        "Nicht verfügbar"
+                                    }}
                                 </dd>
                             </div>
                             <div class="sm:col-span-2">
@@ -288,7 +291,11 @@
                                     <td
                                         class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                                     >
-                                        {{ movement.type }}
+                                        {{
+                                            movement.type == "in"
+                                                ? "Einlagerung"
+                                                : "Auslagerung"
+                                        }}
                                     </td>
                                     <td
                                         class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
@@ -489,7 +496,7 @@
                             </p>
                             <p>
                                 <strong>Gesamtbestand:</strong>
-                                {{ articleToDelete?.stocks_sum_quantity || 0 }}
+                                {{ articleToDelete?.total_quantity || 0 }}
                             </p>
                         </div>
                     </div>
