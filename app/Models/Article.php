@@ -11,6 +11,8 @@ class Article extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $appends = ['total_quantity'];
+
     protected $fillable = [
         'name',
         'description',
@@ -29,5 +31,10 @@ class Article extends Model
     public function stockMovements()
     {
         return $this->hasMany(StockMovement::class);
+    }
+
+    public function getTotalQuantityAttribute()
+    {
+        return $this->stocks()->sum('quantity');
     }
 }
