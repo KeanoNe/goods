@@ -5,64 +5,73 @@ import { ref } from "vue";
 
 const sections = ref([
     {
-        title: "Allgemeine Hinweise",
-        content: `Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.`,
-    },
-    {
-        title: "Datenerfassung auf dieser Website",
+        title: "1. Datenschutz auf einen Blick",
+        content: `Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können. Ausführliche Informationen zum Thema Datenschutz entnehmen Sie unserer unter diesem Text aufgeführten Datenschutzerklärung.`,
         subsections: [
             {
                 title: "Wer ist verantwortlich für die Datenerfassung?",
-                content: `Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Die Kontaktdaten können Sie dem Impressum dieser Website entnehmen.`,
+                content: `Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Abschnitt „Hinweis zur Verantwortlichen Stelle" in dieser Datenschutzerklärung entnehmen.`,
             },
             {
                 title: "Wie erfassen wir Ihre Daten?",
                 content: `Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen. Hierbei kann es sich z.B. um Daten handeln, die Sie in ein Kontaktformular eingeben.
 
-Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Website durch unsere IT-Systeme erfasst. Das sind vor allem technische Daten (z.B. Internetbrowser, Betriebssystem oder Uhrzeit des Seitenaufrufs).`,
-            },
-            {
-                title: "Wofür nutzen wir Ihre Daten?",
-                content: `Ein Teil der Daten wird erhoben, um eine fehlerfreie Bereitstellung der Website zu gewährleisten. Andere Daten können zur Analyse Ihres Nutzerverhaltens verwendet werden.`,
+Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Website durch unsere IT-Systeme erfasst. Das sind vor allem technische Daten (z.B. Internetbrowser, Betriebssystem oder Uhrzeit des Seitenaufrufs). Die Erfassung dieser Daten erfolgt automatisch, sobald Sie diese Website betreten.`,
             },
         ],
     },
     {
-        title: "Ihre Rechte",
+        title: "2. Hosting",
+        content: `Wir hosten die Inhalte unserer Website bei folgendem Anbieter:`,
         subsections: [
             {
-                title: "Auskunftsrecht",
-                content: `Sie haben das Recht, jederzeit unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten.`,
-            },
-            {
-                title: "Recht auf Widerruf",
-                content: `Sie haben das Recht, eine bereits erteilte Einwilligung in die Verarbeitung von Daten jederzeit zu widerrufen.`,
-            },
-            {
-                title: "Recht auf Datenübertragbarkeit",
-                content: `Sie haben das Recht, zu verlangen, dass wir die personenbezogenen Daten, die wir von Ihnen verarbeiten, an eine andere Stelle übertragen.`,
+                title: "Strato",
+                content: `Anbieter ist die Strato AG, Otto-Ostrowski-Straße 7, 10249 Berlin (nachfolgend „Strato"). Wenn Sie unsere Website besuchen, erfasst Strato verschiedene Logfiles inklusive Ihrer IP-Adressen.
+
+Weitere Informationen entnehmen Sie der Datenschutzerklärung von Strato: https://www.strato.de/datenschutz/
+
+Die Verwendung von Strato erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Wir haben ein berechtigtes Interesse an einer möglichst zuverlässigen Darstellung unserer Website.`,
             },
         ],
     },
     {
-        title: "Analyse-Tools und Tools von Drittanbietern",
-        content: `Beim Besuch dieser Website kann Ihr Surf-Verhalten statistisch ausgewertet werden. Das geschieht vor allem mit sogenannten Analyseprogrammen.
-        
-        Die Analyse Ihres Surf-Verhaltens erfolgt in der Regel anonym; das Surf-Verhalten kann nicht zu Ihnen zurückverfolgt werden.`,
+        title: "3. Allgemeine Hinweise und Pflichtinformationen",
+        subsections: [
+            {
+                title: "Datenschutz",
+                content: `Die Betreiber dieser Seiten nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend den gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.
+
+Wenn Sie diese Website benutzen, werden verschiedene personenbezogene Daten erhoben. Die vorliegende Datenschutzerklärung erläutert, welche Daten wir erheben und wofür wir sie nutzen. Sie erläutert auch, wie und zu welchem Zweck das geschieht.`,
+            },
+            {
+                title: "Hinweis zur verantwortlichen Stelle",
+                content: `Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:
+
+NewDot Digital
+Keano Neumann
+Hauptstraße 8
+49326 Melle
+Telefon: +49 (0) 5428 5016800
+E-Mail: info@newdot.digital
+
+Verantwortliche Stelle ist die natürliche oder juristische Person, die allein oder gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten entscheidet.`,
+            },
+        ],
+    },
+    {
+        title: "4. Datenerfassung auf dieser Website",
         subsections: [
             {
                 title: "Cookies",
-                content: `Unsere Website verwendet Cookies. Hierbei handelt es sich um kleine Textdateien, die Ihr Webbrowser auf Ihrem Endgerät speichert. Cookies helfen uns dabei, unser Angebot nutzerfreundlicher, effektiver und sicherer zu machen.`,
+                content: `Unsere Internetseiten verwenden so genannte „Cookies". Cookies sind kleine Datenpakete und richten auf Ihrem Endgerät keinen Schaden an. Sie werden entweder vorübergehend für die Dauer einer Sitzung (Session-Cookies) oder dauerhaft (permanente Cookies) auf Ihrem Endgerät gespeichert. Session-Cookies werden nach Ende Ihres Besuchs automatisch gelöscht. Permanente Cookies bleiben auf Ihrem Endgerät gespeichert, bis Sie diese selbst löschen oder eine automatische Löschung durch Ihren Webbrowser erfolgt.
+
+Cookies können von uns (First-Party-Cookies) oder von Drittunternehmen stammen (sog. Third-Party-Cookies). Third-Party-Cookies ermöglichen die Einbindung bestimmter Dienstleistungen von Drittunternehmen innerhalb von Webseiten (z.B. Cookies zur Abwicklung von Zahlungsdienstleistungen).`,
             },
             {
-                title: "Server-Log-Dateien",
-                content: `Der Provider der Seiten erhebt und speichert automatisch Informationen in so genannten Server-Log-Dateien, die Ihr Browser automatisch an uns übermittelt. Dies sind:
-                - Browsertyp und Browserversion
-                - Verwendetes Betriebssystem
-                - Referrer URL
-                - Hostname des zugreifenden Rechners
-                - Uhrzeit der Serveranfrage
-                - IP-Adresse`,
+                title: "SSL- bzw. TLS-Verschlüsselung",
+                content: `Diese Seite nutzt aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher Inhalte, wie zum Beispiel Bestellungen oder Anfragen, die Sie an uns als Seitenbetreiber senden, eine SSL- bzw. TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie daran, dass die Adresszeile des Browsers von „http://" auf „https://" wechselt und an dem Schloss-Symbol in Ihrer Browserzeile.
+
+Wenn die SSL- bzw. TLS-Verschlüsselung aktiviert ist, können die Daten, die Sie an uns übermitteln, nicht von Dritten mitgelesen werden.`,
             },
         ],
     },
@@ -70,8 +79,7 @@ Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Web
 </script>
 
 <template>
-    <WebLayout title="Impressum">
-        <!-- Content -->
+    <WebLayout title="Datenschutzerklärung">
         <div class="container mx-auto px-6 py-8">
             <div class="max-w-4xl mx-auto">
                 <!-- Header -->
@@ -82,18 +90,6 @@ Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Web
                         Datenschutzerklärung
                     </h1>
                     <div class="h-1 w-20 bg-indigo-600 mx-auto"></div>
-                </div>
-
-                <!-- Introduction -->
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8"
-                >
-                    <p class="text-gray-600 dark:text-gray-300">
-                        Der Schutz Ihrer persönlichen Daten ist uns ein
-                        besonderes Anliegen. In dieser Datenschutzerklärung
-                        informieren wir Sie über die wichtigsten Aspekte der
-                        Datenverarbeitung im Rahmen unserer Website.
-                    </p>
                 </div>
 
                 <!-- Main Content -->
@@ -141,34 +137,11 @@ Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Web
                     </div>
                 </div>
 
-                <!-- Contact Information -->
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mt-8"
-                >
-                    <h2
-                        class="text-2xl font-semibold text-gray-900 dark:text-white mb-6"
-                    >
-                        Kontakt für Datenschutz
-                    </h2>
-                    <p class="text-gray-600 dark:text-gray-300">
-                        Bei Fragen zur Erhebung, Verarbeitung oder Nutzung Ihrer
-                        personenbezogenen Daten, bei Auskünften, Berichtigung,
-                        Sperrung oder Löschung von Daten wenden Sie sich bitte
-                        an unseren Datenschutzbeauftragten:
-                    </p>
-                    <div class="mt-4 text-gray-600 dark:text-gray-300">
-                        <p>E-Mail: datenschutz@example.com</p>
-                        <p>Telefon: +49 (0) 123 456789</p>
-                    </div>
+                <!-- Footer -->
+                <div class="mt-8 text-center text-gray-600 dark:text-gray-400">
+                    Stand: {{ new Date().toLocaleDateString() }}
                 </div>
             </div>
         </div>
-
-        <!-- Footer -->
-        <footer class="container mx-auto px-6 py-8">
-            <div class="text-center text-gray-600 dark:text-gray-400">
-                Stand: {{ new Date().toLocaleDateString() }}
-            </div>
-        </footer>
     </WebLayout>
 </template>

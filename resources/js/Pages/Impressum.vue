@@ -6,14 +6,14 @@ defineProps({
     companyInfo: {
         type: Object,
         default: () => ({
-            name: "Musterfirma GmbH",
-            street: "Musterstraße 123",
-            zip: "12345",
-            city: "Musterstadt",
+            company: "NewDot Digital",
+            name: "Keano Neumann",
+            street: "Hauptstraße 8",
+            zip: "49326",
+            city: "Melle",
             country: "Deutschland",
-            email: "info@musterfirma.de",
-            phone: "+49 (0) 123 456789",
-            fax: "+49 (0) 123 456788",
+            email: "info@newdot.digital",
+            phone: "+49 (0) 5428 5016800",
             managing_director: "Max Mustermann",
             register_court: "Amtsgericht Musterstadt",
             register_number: "HRB 12345",
@@ -61,6 +61,7 @@ defineProps({
                             <div
                                 class="text-gray-600 dark:text-gray-300 space-y-1"
                             >
+                                <p>{{ companyInfo.company }}</p>
                                 <p>{{ companyInfo.name }}</p>
                                 <p>{{ companyInfo.street }}</p>
                                 <p>
@@ -81,58 +82,7 @@ defineProps({
                                 class="text-gray-600 dark:text-gray-300 space-y-1"
                             >
                                 <p>Telefon: {{ companyInfo.phone }}</p>
-                                <p>Fax: {{ companyInfo.fax }}</p>
                                 <p>E-Mail: {{ companyInfo.email }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Legal Information -->
-                        <div>
-                            <h3
-                                class="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2"
-                            >
-                                Rechtliche Angaben
-                            </h3>
-                            <div
-                                class="text-gray-600 dark:text-gray-300 space-y-1"
-                            >
-                                <p>
-                                    Geschäftsführer:
-                                    {{ companyInfo.managing_director }}
-                                </p>
-                                <p>
-                                    Registergericht:
-                                    {{ companyInfo.register_court }}
-                                </p>
-                                <p>
-                                    Handelsregisternummer:
-                                    {{ companyInfo.register_number }}
-                                </p>
-                                <p>Umsatzsteuer-ID: {{ companyInfo.vat_id }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Content Responsibility -->
-                        <div>
-                            <h3
-                                class="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2"
-                            >
-                                Inhaltlich Verantwortlicher
-                            </h3>
-                            <div class="text-gray-600 dark:text-gray-300">
-                                <p>{{ companyInfo.responsible_content }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Data Protection -->
-                        <div>
-                            <h3
-                                class="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2"
-                            >
-                                Datenschutzbeauftragter
-                            </h3>
-                            <div class="text-gray-600 dark:text-gray-300">
-                                <p>{{ companyInfo.data_protection_officer }}</p>
                             </div>
                         </div>
                     </div>
@@ -149,18 +99,89 @@ defineProps({
                     <div
                         class="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-300"
                     >
+                        <h3
+                            class="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2"
+                        >
+                            Verbraucher­streit­beilegung/Universal­schlichtungs­stelle
+                        </h3>
                         <p class="mb-4">
-                            Trotz sorgfältiger inhaltlicher Kontrolle übernehmen
-                            wir keine Haftung für die Inhalte externer Links.
-                            Für den Inhalt der verlinkten Seiten sind
-                            ausschließlich deren Betreiber verantwortlich.
+                            Wir sind nicht bereit oder verpflichtet, an
+                            Streitbeilegungsverfahren vor einer
+                            Verbraucherschlichtungsstelle teilzunehmen.
+                        </p>
+                        <h3
+                            class="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2"
+                        >
+                            Haftung für Inhalte
+                        </h3>
+                        <p class="mb-4">
+                            Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für
+                            eigene Inhalte auf diesen Seiten nach den
+                            allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis
+                            10 TMG sind wir als Diensteanbieter jedoch nicht
+                            verpflichtet, übermittelte oder gespeicherte fremde
+                            Informationen zu überwachen oder nach Umständen zu
+                            forschen, die auf eine rechtswidrige Tätigkeit
+                            hinweisen. Verpflichtungen zur Entfernung oder
+                            Sperrung der Nutzung von Informationen nach den
+                            allgemeinen Gesetzen bleiben hiervon unberührt. Eine
+                            diesbezügliche Haftung ist jedoch erst ab dem
+                            Zeitpunkt der Kenntnis einer konkreten
+                            Rechtsverletzung möglich. Bei Bekanntwerden von
+                            entsprechenden Rechtsverletzungen werden wir diese
+                            Inhalte umgehend entfernen.
+                        </p>
+                        <h3
+                            class="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2"
+                        >
+                            Haftung für Links
+                        </h3>
+                        <p class="mb-4">
+                            Unser Angebot enthält Links zu externen Websites
+                            Dritter, auf deren Inhalte wir keinen Einfluss
+                            haben. Deshalb können wir für diese fremden Inhalte
+                            auch keine Gewähr übernehmen. Für die Inhalte der
+                            verlinkten Seiten ist stets der jeweilige Anbieter
+                            oder Betreiber der Seiten verantwortlich. Die
+                            verlinkten Seiten wurden zum Zeitpunkt der
+                            Verlinkung auf mögliche Rechtsverstöße überprüft.
+                            Rechtswidrige Inhalte waren zum Zeitpunkt der
+                            Verlinkung nicht erkennbar. Eine permanente
+                            inhaltliche Kontrolle der verlinkten Seiten ist
+                            jedoch ohne konkrete Anhaltspunkte einer
+                            Rechtsverletzung nicht zumutbar. Bei Bekanntwerden
+                            von Rechtsverletzungen werden wir derartige Links
+                            umgehend entfernen.
+                        </p>
+                        <h3
+                            class="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2"
+                        >
+                            Urheberrecht
+                        </h3>
+                        <p class="mb-4">
+                            Die durch die Seitenbetreiber erstellten Inhalte und
+                            Werke auf diesen Seiten unterliegen dem deutschen
+                            Urheberrecht. Die Vervielfältigung, Bearbeitung,
+                            Verbreitung und jede Art der Verwertung außerhalb
+                            der Grenzen des Urheberrechtes bedürfen der
+                            schriftlichen Zustimmung des jeweiligen Autors bzw.
+                            Erstellers. Downloads und Kopien dieser Seite sind
+                            nur für den privaten, nicht kommerziellen Gebrauch
+                            gestattet. Soweit die Inhalte auf dieser Seite nicht
+                            vom Betreiber erstellt wurden, werden die
+                            Urheberrechte Dritter beachtet. Insbesondere werden
+                            Inhalte Dritter als solche gekennzeichnet. Sollten
+                            Sie trotzdem auf eine Urheberrechtsverletzung
+                            aufmerksam werden, bitten wir um einen
+                            entsprechenden Hinweis. Bei Bekanntwerden von
+                            Rechtsverletzungen werden wir derartige Inhalte
+                            umgehend entfernen.
                         </p>
                         <p>
-                            Alle Inhalte dieser Webseite (Texte, Grafiken,
-                            Fotos, Logos, etc.) sind urheberrechtlich geschützt.
-                            Die Verwendung durch Dritte bedarf der
-                            ausdrücklichen Zustimmung der
-                            {{ companyInfo.name }}.
+                            Quelle:
+                            <a href="https://www.e-recht24.de"
+                                >https://www.e-recht24.de</a
+                            >
                         </p>
                     </div>
                 </div>
