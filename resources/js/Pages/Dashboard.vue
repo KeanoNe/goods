@@ -34,6 +34,12 @@ const formatMovementType = (type) => {
     };
     return types[type] || type;
 };
+
+const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+    );
+};
 </script>
 
 <template>
@@ -44,7 +50,30 @@ const formatMovementType = (type) => {
             </h2>
         </template>
 
-        <div class="py-12 bg-gray-100">
+        <div class="py-8 bg-gray-100">
+            <div
+                class="max-w-7xl mb-8 mx-4 sm:px-6 lg:px-8 space-y-8"
+                v-if="isMobile()"
+            >
+                <Link href="/stock/movements">
+                    <button
+                        @click="route('stock/movements')"
+                        class="w-full justify-center inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 mr-2"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                        >
+                            <path
+                                d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zm-2 7a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zm8-12a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2h1v1h-1V5zm-2 5a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm2 2h1v1h-1v-1z"
+                            />
+                        </svg>
+                        Bestandsbewegungen buchen
+                    </button>
+                </Link>
+            </div>
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
                 <!-- Statistische Kennzahlen -->
                 <div
