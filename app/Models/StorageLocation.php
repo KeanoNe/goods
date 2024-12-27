@@ -16,7 +16,6 @@ class StorageLocation extends Model
         'description',
         'shelf_id',
         'qr_code',
-        'barcode',
         'notes'
     ];
 

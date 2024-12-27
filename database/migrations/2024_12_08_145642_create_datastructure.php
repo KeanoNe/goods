@@ -54,7 +54,6 @@ return new class () extends Migration {
             $table->string('name');
             $table->text('description')->nullable();
             $table->foreignId('shelf_id')->constrained()->onDelete('cascade');
-            $table->string('barcode')->nullable()->unique();
             $table->text('notes')->nullable();
             $table->timestamps();
             $table->softDeletes();

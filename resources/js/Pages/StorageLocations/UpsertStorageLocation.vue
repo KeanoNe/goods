@@ -67,25 +67,6 @@
                             </div>
                         </div>
 
-                        <!-- Barcode -->
-                        <div class="mb-6">
-                            <label
-                                class="block text-sm font-medium text-gray-700"
-                                >Barcode</label
-                            >
-                            <input
-                                type="text"
-                                v-model="form.barcode"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            />
-                            <div
-                                v-if="form.errors.barcode"
-                                class="text-red-500 text-sm mt-1"
-                            >
-                                {{ form.errors.barcode }}
-                            </div>
-                        </div>
-
                         <!-- Description -->
                         <div class="mb-6">
                             <label
@@ -172,7 +153,6 @@ const props = defineProps({
 const form = useForm({
     name: props.storageLocation?.name ?? "",
     shelf_id: props.storageLocation?.shelf_id ?? "",
-    barcode: props.storageLocation?.barcode ?? "",
     description: props.storageLocation?.description ?? "",
     notes: props.storageLocation?.notes ?? "",
 });
