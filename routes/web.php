@@ -93,6 +93,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])
     Route::get('/storage-locations/trashed', [StorageLocationManagementController::class, 'trashed'])->name('storage-locations.trashed');
     Route::put('/storage-locations/{storageLocation}/restore', [StorageLocationManagementController::class, 'restore'])->name('storage-locations.restore');
     Route::delete('/storage-locations/{storageLocation}/force', [StorageLocationManagementController::class, 'forceDelete'])->name('storage-locations.force-delete');
+    Route::get('/locations/{storageLocation}/qr-code', [StorageLocationManagementController::class, 'generateQrCode'])->name('storage-locations.qr-code');
 });
 
 

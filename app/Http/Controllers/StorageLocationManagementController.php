@@ -6,6 +6,12 @@ use App\Models\StorageLocation;
 use App\Models\Shelf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\RoundBlockSizeMode;
+use Endroid\QrCode\Writer\PngWriter;
 
 class StorageLocationManagementController extends Controller
 {
@@ -111,5 +117,34 @@ class StorageLocationManagementController extends Controller
 
         return redirect()->route('storage-locations.trashed')
             ->with('message', 'Lagerplatz endgültig gelöscht');
+    }
+
+    public function generateQrCode(StorageLocation $storageLocation)
+    {
+        $writer = new PngWriter();
+
+        // Create QR code
+        $qrCode = new QrCode(
+            data: (string)$storageLocation->id,
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 150 * 3.78, // Convert 15cm to pixels (1cm = 37.8px at 96 DPI)
+            margin: 10,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            foregroundColor: new Color(0, 0, 0),
+            backgroundColor: new Color(255, 255, 255)
+        );
+
+        $result = $writer->write($qrCode);
+
+        // Validate the result
+        $writer->validateResult($result, (string)$storageLocation->id);
+
+        $headers = [
+            'Content-Type' => 'image/png',
+            'Content-Disposition' => 'attachment; filename="storage-location-' . $storageLocation->id . '-qr.png"',
+        ];
+
+        return response($result->getString(), 200, $headers);
     }
 }

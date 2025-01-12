@@ -75,6 +75,12 @@
                         }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
+                        <button
+                            @click="downloadQrCode(location.id)"
+                            class="text-indigo-600 hover:text-indigo-900 mr-2"
+                        >
+                            QR-Code
+                        </button>
                         <Link
                             :href="route('storage-locations.edit', location.id)"
                             class="text-indigo-600 hover:text-indigo-900 mr-2"
@@ -172,6 +178,13 @@ const openDeleteDialog = (location) => {
 const closeDeleteDialog = () => {
     showDeleteDialog.value = false;
     locationToDelete.value = null;
+};
+
+const downloadQrCode = (storageLocationId) => {
+    window.location.href = route(
+        "storage-locations.qr-code",
+        storageLocationId
+    );
 };
 
 const confirmDelete = () => {
