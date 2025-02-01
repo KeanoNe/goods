@@ -35,7 +35,7 @@ class StockMovementController extends Controller
 
         // Hole alle Artikel an diesem Lagerort
         $stocks = $location->stocks->filter(function ($stock) {
-            return $stock->article?->id != null;
+            return $stock->article?->id != null && $stock->article->deleted_at === null;
         });
 
         $stocks = $stocks->map(function ($stock) {
