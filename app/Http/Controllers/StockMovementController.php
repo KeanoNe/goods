@@ -33,8 +33,6 @@ class StockMovementController extends Controller
             'stocks.article'
         ])->findOrFail($storageLocation->id);
 
-        dd($location);
-
         // Hole alle Artikel an diesem Lagerort
         $stocks = $location->stocks->map(function ($stock) {
             return [
