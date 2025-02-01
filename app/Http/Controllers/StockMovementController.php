@@ -30,15 +30,17 @@ class StockMovementController extends Controller
     {
         $location = StorageLocation::with([
             'shelf.rack.warehouse',
+            'stocks' => function ($query) {
+                // Nur Stocks laden, deren verknüpfte Article nicht gelöscht sind
+                $query->whereHas('article', function ($query) {
+                    $query->whereNull('deleted_at');
+                });
+            },
+            // Wir brauchen natürlich weiterhin das Artikel-Objekt in 'stocks.article'
             'stocks.article'
         ])->findOrFail($storageLocation->id);
 
-        // Hole alle Artikel an diesem Lagerort
-        $stocks = $location->stocks->filter(function ($stock) {
-            return $stock->article?->id != null && $stock->article->deleted_at === null;
-        });
-
-        $stocks = $stocks->map(function ($stock) {
+        $stocks = $location->stocks->map(function ($stock) {
             return [
                 'id' => $stock->article->id,
                 'name' => $stock->article->name,
@@ -49,8 +51,8 @@ class StockMovementController extends Controller
 
         return response()->json([
             'location' => [
-                'id' => $location->id,
-                'name' => sprintf(
+                'id'    => $location->id,
+                'name'  => sprintf(
                     '%s - %s - %s - %s',
                     $location->shelf->rack->warehouse->name,
                     $location->shelf->rack->name,
