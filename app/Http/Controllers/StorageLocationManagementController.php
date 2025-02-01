@@ -137,9 +137,6 @@ class StorageLocationManagementController extends Controller
 
         $result = $writer->write($qrCode);
 
-        // Validate the result
-        // $writer->validateResult($result, (string)$storageLocation->id);
-
         $headers = [
             'Content-Type' => 'image/png',
             'Content-Disposition' => 'attachment; filename="storage-location-' . $storageLocation->id . '-qr.png"',
