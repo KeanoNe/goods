@@ -21,7 +21,7 @@
     },
     "dependencies": {
         "@heroicons/vue": "^2.2.0",
-        "apexcharts": "^4.2.0",
+        "apexcharts": "^5.10.0",
         "html5-qrcode": "^2.3.8",
         "vue-router": "^4.5.0",
         "vue3-apexcharts": "^1.8.0"
