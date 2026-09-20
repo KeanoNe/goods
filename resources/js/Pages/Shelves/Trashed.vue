@@ -140,14 +140,14 @@
                             <div class="mt-6 flex justify-end space-x-3">
                                 <button
                                     type="button"
-                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-xs hover:bg-gray-50"
                                     @click="closeForceDeleteDialog"
                                 >
                                     Abbrechen
                                 </button>
                                 <button
                                     type="button"
-                                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-xs hover:bg-red-700"
                                     @click="confirmForceDelete"
                                     :disabled="form.processing"
                                 >

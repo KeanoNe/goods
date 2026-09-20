@@ -23,7 +23,7 @@
                                         type="text"
                                         placeholder="Suche nach Artikeln..."
                                         v-model="search"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        class="w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
                                     />
                                 </div>
                             </div>
@@ -32,7 +32,7 @@
                                 <!-- Neuen Artikel Button -->
                                 <Link
                                     :href="route('articles.create')"
-                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-xs text-white bg-indigo-600 hover:bg-indigo-700"
                                 >
                                     Neuer Artikel
                                 </Link>

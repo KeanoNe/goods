@@ -81,7 +81,7 @@ const isMobile = () => {
                 >
                     <!-- Gesamtbestand aller Artikel -->
                     <div
-                        class="bg-white shadow rounded-lg p-6 flex items-center"
+                        class="bg-white shadow-sm rounded-lg p-6 flex items-center"
                     >
                         <div class="p-3 rounded-full bg-green-100">
                             <InformationCircleIcon
@@ -102,7 +102,7 @@ const isMobile = () => {
 
                     <!-- Artikel unter Mindestbestand -->
                     <div
-                        class="bg-white shadow rounded-lg p-6 flex items-center"
+                        class="bg-white shadow-sm rounded-lg p-6 flex items-center"
                     >
                         <div class="p-3 rounded-full bg-red-100">
                             <ExclamationCircleIcon
@@ -123,7 +123,7 @@ const isMobile = () => {
 
                     <!-- Artikel ohne Bewegung -->
                     <div
-                        class="bg-white shadow rounded-lg p-6 flex items-center"
+                        class="bg-white shadow-sm rounded-lg p-6 flex items-center"
                     >
                         <div class="p-3 rounded-full bg-yellow-100">
                             <ArchiveBoxIcon class="h-6 w-6 text-yellow-600" />
@@ -142,7 +142,7 @@ const isMobile = () => {
 
                     <!-- Anzahl aller Artikel -->
                     <div
-                        class="bg-white shadow rounded-lg p-6 flex items-center"
+                        class="bg-white shadow-sm rounded-lg p-6 flex items-center"
                     >
                         <div class="p-3 rounded-full bg-blue-100">
                             <ClipboardDocumentIcon
@@ -163,7 +163,7 @@ const isMobile = () => {
                 </div>
 
                 <!-- Letzte Bestandsbewegungen -->
-                <div class="bg-white shadow rounded-lg p-6">
+                <div class="bg-white shadow-sm rounded-lg p-6">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-medium text-gray-900">
                             Letzte Bestandsbewegungen
@@ -253,7 +253,7 @@ const isMobile = () => {
                 </div>
 
                 <!-- Tabelle der Artikel unter Mindestbestand -->
-                <div class="bg-white shadow rounded-lg p-6">
+                <div class="bg-white shadow-sm rounded-lg p-6">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-medium text-gray-900">
                             Artikel unter Mindestbestand

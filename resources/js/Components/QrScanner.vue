@@ -3,7 +3,7 @@
     <div>
         <div
             v-show="showScanner"
-            class="fixed inset-0 bg-black bg-opacity-50 z-50"
+            class="fixed inset-0 bg-black/50 z-50"
         >
             <div
                 class="bg-white max-w-lg mx-auto mt-10 rounded-lg overflow-hidden"
@@ -34,7 +34,7 @@
                     <div id="reader"></div>
                     <div
                         v-if="scanning"
-                        class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50"
+                        class="absolute inset-0 flex items-center justify-center bg-black/50"
                     >
                         <div class="text-white text-center">
                             <svg
