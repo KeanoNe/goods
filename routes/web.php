@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArticleManagementController;
 use App\Http\Controllers\ArticleStorageLocationController;
 use App\Http\Controllers\ArticleSupplierController;
+use App\Http\Controllers\BalanceReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RackManagementController;
 use App\Http\Controllers\ShelfManagementController;
@@ -166,5 +167,11 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
             Route::post('/movements', [StockMovementController::class, 'update'])
                 ->name('movement.store');
         });
+    });
+});
+
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/balance', [BalanceReportController::class, 'index'])->name('balance.index');
     });
 });

@@ -82,6 +82,14 @@ const logout = () => {
                                 >
                                     Lieferanten
                                 </NavLink>
+                                <NavLink
+                                    :href="route('reports.balance.index')"
+                                    :active="
+                                        route().current('reports.balance.index')
+                                    "
+                                >
+                                    Bilanz
+                                </NavLink>
                             </div>
                         </div>
 
@@ -388,6 +396,12 @@ const logout = () => {
                             :active="route().current('suppliers.index')"
                         >
                             Lieferanten
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('reports.balance.index')"
+                            :active="route().current('reports.balance.index')"
+                        >
+                            Bilanz
                         </ResponsiveNavLink>
                     </div>
 

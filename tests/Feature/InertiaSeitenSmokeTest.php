@@ -55,6 +55,7 @@ class InertiaSeitenSmokeTest extends TestCase
             'Lieferant anlegen' => ['suppliers.create', 'Suppliers/UpsertSupplier'],
             'Lieferanten-Papierkorb' => ['suppliers.trashed', 'Suppliers/Trashed'],
             'Bestandsbewegungen' => ['stock.movements.index', 'StockMovement/Index'],
+            'Bilanz' => ['reports.balance.index', 'Reports/Balance'],
         ];
     }
 
