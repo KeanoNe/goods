@@ -79,10 +79,12 @@
 
                                     <div v-if="stock.suppliers.length">
                                         <label
+                                            :for="'supplier-' + stock.id"
                                             class="block text-sm font-medium text-gray-700"
                                             >Lieferant</label
                                         >
                                         <select
+                                            :id="'supplier-' + stock.id"
                                             v-model="suppliers[stock.id]"
                                             class="mt-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                         >
@@ -95,9 +97,8 @@
                                                 :value="supplier.id"
                                             >
                                                 {{ supplier.name }} ({{
-                                                    supplier.price
-                                                }}
-                                                €)
+                                                    waehrung(supplier.price)
+                                                }})
                                             </option>
                                         </select>
                                     </div>
@@ -241,6 +242,13 @@ export default defineComponent({
     methods: {
         formatDate(date) {
             return new Date(date).toLocaleString();
+        },
+
+        waehrung(wert) {
+            return new Intl.NumberFormat("de-DE", {
+                style: "currency",
+                currency: "EUR",
+            }).format(wert);
         },
 
         getTypeClass(type) {

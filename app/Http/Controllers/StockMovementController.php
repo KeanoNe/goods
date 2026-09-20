@@ -89,6 +89,8 @@ class StockMovementController extends Controller
                         ->where('article_id', $request->input('article_id')),
                 ],
                 'notes' => 'nullable|string|max:1000',
+            ], [
+                'supplier_id.exists' => 'Der gewählte Lieferant ist diesem Artikel nicht zugeordnet.',
             ]);
 
             return DB::transaction(function () use ($validated) {

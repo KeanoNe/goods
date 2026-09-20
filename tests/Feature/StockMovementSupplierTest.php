@@ -141,6 +141,10 @@ class StockMovementSupplierTest extends TestCase
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors('supplier_id');
+        $response->assertJsonPath(
+            'errors.supplier_id.0',
+            'Der gewählte Lieferant ist diesem Artikel nicht zugeordnet.'
+        );
         $this->assertDatabaseCount('stock_movements', 0);
     }
 
