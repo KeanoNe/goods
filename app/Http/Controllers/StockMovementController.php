@@ -6,10 +6,10 @@ use App\Models\Article;
 use App\Models\Stock;
 use App\Models\StockMovement;
 use App\Models\StorageLocation;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
@@ -84,13 +84,27 @@ class StockMovementController extends Controller
                 'article_id' => 'required|exists:articles,id',
                 'supplier_id' => [
                     'nullable',
-                    // Der Lieferant muss dem Artikel zugeordnet sein.
-                    Rule::exists('article_supplier', 'supplier_id')
-                        ->where('article_id', $request->input('article_id')),
+                    function (string $attribute, mixed $value, \Closure $fail) use ($request) {
+                        $istZugeordnet = DB::table('article_supplier')
+                            ->where('article_id', $request->input('article_id'))
+                            ->where('supplier_id', $value)
+                            ->exists();
+
+                        if (! $istZugeordnet) {
+                            $fail('Der gewählte Lieferant ist diesem Artikel nicht zugeordnet.');
+
+                            return;
+                        }
+
+                        // Die Pivot-Zuordnung bleibt beim Soft-Delete des Lieferanten
+                        // bestehen — deshalb muss der Lieferant selbst zusätzlich
+                        // geprüft werden.
+                        if (Supplier::onlyTrashed()->whereKey($value)->exists()) {
+                            $fail('Der gewählte Lieferant wurde in den Papierkorb verschoben und kann nicht mehr gebucht werden.');
+                        }
+                    },
                 ],
                 'notes' => 'nullable|string|max:1000',
-            ], [
-                'supplier_id.exists' => 'Der gewählte Lieferant ist diesem Artikel nicht zugeordnet.',
             ]);
 
             return DB::transaction(function () use ($validated) {

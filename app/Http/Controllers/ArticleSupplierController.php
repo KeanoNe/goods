@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ArticleSupplierController extends Controller
 {
@@ -18,7 +19,7 @@ class ArticleSupplierController extends Controller
     public function store(Request $request, Article $article)
     {
         $validated = $request->validate([
-            'supplier_id' => 'required|exists:suppliers,id',
+            'supplier_id' => ['required', Rule::exists('suppliers', 'id')->whereNull('deleted_at')],
             'price' => 'required|numeric|min:0',
             'is_default' => 'boolean',
         ]);
@@ -100,10 +101,19 @@ class ArticleSupplierController extends Controller
             $article->suppliers()->detach($supplier->id);
 
             if ($warStandard) {
-                $nachfolger = $article->suppliers()->first();
+                // Über die Query Builder-Tabelle statt der Beziehung, damit ein
+                // verbliebener, aber bereits in den Papierkorb verschobener
+                // Lieferant als Nachfolger nicht durch den Soft-Delete-Scope
+                // verborgen wird.
+                $nachfolgerId = DB::table('article_supplier')
+                    ->where('article_id', $article->id)
+                    ->value('supplier_id');
 
-                if ($nachfolger !== null) {
-                    $article->suppliers()->updateExistingPivot($nachfolger->id, ['is_default' => true]);
+                if ($nachfolgerId !== null) {
+                    DB::table('article_supplier')
+                        ->where('article_id', $article->id)
+                        ->where('supplier_id', $nachfolgerId)
+                        ->update(['is_default' => true]);
                 }
             }
         });

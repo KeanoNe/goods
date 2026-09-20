@@ -20,6 +20,7 @@ class BalanceReportService
      *     from: CarbonInterface,
      *     to: CarbonInterface,
      *     articles: list<array{
+     *         article_id: int,
      *         sku: string,
      *         name: string,
      *         rows: list<array{supplier: string, quantity: int, unit_price: float, total: float}>,
@@ -78,7 +79,8 @@ class BalanceReportService
             $gesamtsumme += $zwischensumme;
 
             $artikel[] = [
-                'sku' => $stammdaten?->sku ?? '-',
+                'article_id' => (int) $articleId,
+                'sku' => $stammdaten?->sku ?? 'Unbekannt',
                 'name' => $stammdaten?->name ?? 'Unbekannter Artikel',
                 'rows' => $zeilen,
                 'subtotal' => $zwischensumme,

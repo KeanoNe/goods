@@ -148,6 +148,28 @@ class StockMovementSupplierTest extends TestCase
         $this->assertDatabaseCount('stock_movements', 0);
     }
 
+    public function test_geloeschter_lieferant_wird_beim_buchen_abgelehnt(): void
+    {
+        [$article, $location, $supplier] = $this->artikelMitLieferant(1.00);
+        $supplier->delete();
+
+        $response = $this->postJson(route('stock.api.movement.store'), [
+            'location_id' => $location->id,
+            'article_id' => $article->id,
+            'quantity' => 1,
+            'type' => 'add',
+            'supplier_id' => $supplier->id,
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('supplier_id');
+        $response->assertJsonPath(
+            'errors.supplier_id.0',
+            'Der gewählte Lieferant wurde in den Papierkorb verschoben und kann nicht mehr gebucht werden.'
+        );
+        $this->assertDatabaseCount('stock_movements', 0);
+    }
+
     /**
      * Legt Artikel, Lagerplatz, Bestand und einen zugeordneten Lieferanten an.
      *

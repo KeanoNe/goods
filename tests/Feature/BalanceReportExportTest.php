@@ -118,21 +118,24 @@ class BalanceReportExportTest extends TestCase
             'format' => 'xlsx',
         ]));
 
-        $pfad = tempnam(sys_get_temp_dir(), 'bilanz').'.xlsx';
+        $pfad = tempnam(sys_get_temp_dir(), 'bilanz');
         file_put_contents($pfad, $response->streamedContent());
 
-        $zeilen = [];
-        $reader = new Reader;
-        $reader->open($pfad);
+        try {
+            $zeilen = [];
+            $reader = new Reader;
+            $reader->open($pfad);
 
-        foreach ($reader->getSheetIterator() as $sheet) {
-            foreach ($sheet->getRowIterator() as $row) {
-                $zeilen[] = $row->toArray();
+            foreach ($reader->getSheetIterator() as $sheet) {
+                foreach ($sheet->getRowIterator() as $row) {
+                    $zeilen[] = $row->toArray();
+                }
             }
-        }
 
-        $reader->close();
-        unlink($pfad);
+            $reader->close();
+        } finally {
+            unlink($pfad);
+        }
 
         $ersteSpalte = array_map(fn ($zeile) => (string) ($zeile[0] ?? ''), $zeilen);
         $zweiteSpalte = array_map(fn ($zeile) => (string) ($zeile[1] ?? ''), $zeilen);
@@ -181,21 +184,24 @@ class BalanceReportExportTest extends TestCase
             'format' => 'xlsx',
         ]));
 
-        $pfad = tempnam(sys_get_temp_dir(), 'bilanz').'.xlsx';
+        $pfad = tempnam(sys_get_temp_dir(), 'bilanz');
         file_put_contents($pfad, $response->streamedContent());
 
-        $zeilen = [];
-        $reader = new Reader;
-        $reader->open($pfad);
+        try {
+            $zeilen = [];
+            $reader = new Reader;
+            $reader->open($pfad);
 
-        foreach ($reader->getSheetIterator() as $sheet) {
-            foreach ($sheet->getRowIterator() as $row) {
-                $zeilen[] = $row->toArray();
+            foreach ($reader->getSheetIterator() as $sheet) {
+                foreach ($sheet->getRowIterator() as $row) {
+                    $zeilen[] = $row->toArray();
+                }
             }
-        }
 
-        $reader->close();
-        unlink($pfad);
+            $reader->close();
+        } finally {
+            unlink($pfad);
+        }
 
         $ersteSpalte = array_map(fn ($zeile) => (string) ($zeile[0] ?? ''), $zeilen);
 

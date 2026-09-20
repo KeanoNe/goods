@@ -83,11 +83,11 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             <template
                                 v-for="artikel in articles"
-                                :key="artikel.sku"
+                                :key="artikel.article_id"
                             >
                                 <tr
                                     v-for="(zeile, index) in artikel.rows"
-                                    :key="artikel.sku + '-' + index"
+                                    :key="artikel.article_id + '-' + index"
                                 >
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         {{ index === 0 ? artikel.sku : "" }}

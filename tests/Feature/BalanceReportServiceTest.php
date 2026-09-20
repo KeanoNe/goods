@@ -90,6 +90,10 @@ class BalanceReportServiceTest extends TestCase
 
         $this->assertSame('Ohne Lieferant', $bericht['articles'][0]['rows'][0]['supplier']);
         $this->assertSame(5, $bericht['articles'][0]['rows'][0]['quantity']);
+        // Bewusste Entscheidung, kein Zufall: Bewegungen ohne Lieferant haben
+        // keinen Stückpreis, sollen aber trotzdem als 0.0 statt null erscheinen,
+        // damit jede Spalte numerisch bleibt und sich in Excel weiterrechnen lässt.
+        $this->assertSame(0.0, $bericht['articles'][0]['rows'][0]['unit_price']);
         $this->assertSame(0.0, $bericht['articles'][0]['rows'][0]['total']);
     }
 
@@ -134,6 +138,31 @@ class BalanceReportServiceTest extends TestCase
 
         $this->assertSame(-4, $bericht['articles'][0]['rows'][0]['quantity']);
         $this->assertSame(-8.00, $bericht['grand_total']);
+    }
+
+    public function test_gesamtsumme_kumuliert_ueber_mehrere_artikel_sortiert_nach_sku(): void
+    {
+        // Anlagereihenfolge ist absichtlich umgekehrt zur SKU-Sortierung, damit
+        // ein Test, der nur die Anlagereihenfolge widerspiegelt, nicht
+        // versehentlich als "sortiert" durchgeht.
+        $zuerstAngelegt = Article::factory()->create(['sku' => 'SKU-9', 'name' => 'Schraube']);
+        $zuletztAngelegt = Article::factory()->create(['sku' => 'SKU-1', 'name' => 'Mutter']);
+        $supplier = Supplier::factory()->create(['name' => 'Mueller']);
+
+        $this->bewegung($zuerstAngelegt, $supplier, 'in', 10, 2.00, '2026-01-05');
+        $this->bewegung($zuletztAngelegt, $supplier, 'in', 4, 3.00, '2026-01-06');
+
+        $bericht = $this->service->build(Carbon::parse('2026-01-01'), Carbon::parse('2026-01-31'));
+
+        $this->assertCount(2, $bericht['articles']);
+        $this->assertSame('SKU-1', $bericht['articles'][0]['sku']);
+        $this->assertSame('SKU-9', $bericht['articles'][1]['sku']);
+        $this->assertSame(12.00, $bericht['articles'][0]['subtotal']);
+        $this->assertSame(20.00, $bericht['articles'][1]['subtotal']);
+
+        $this->assertSame(32.00, $bericht['grand_total']);
+        $this->assertNotSame($bericht['grand_total'], $bericht['articles'][0]['subtotal']);
+        $this->assertNotSame($bericht['grand_total'], $bericht['articles'][1]['subtotal']);
     }
 
     private function bewegung(

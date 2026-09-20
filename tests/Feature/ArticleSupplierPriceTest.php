@@ -171,6 +171,40 @@ class ArticleSupplierPriceTest extends TestCase
         $this->assertDatabaseHas('article_supplier', ['supplier_id' => $anderer->id, 'is_default' => true]);
     }
 
+    public function test_bereits_zugeordneter_aber_geloeschter_lieferant_wird_bei_erneuter_zuordnung_abgelehnt(): void
+    {
+        $article = Article::factory()->create();
+        $supplier = Supplier::factory()->create();
+        $article->suppliers()->attach($supplier->id, ['price' => 1.00, 'is_default' => true]);
+        $supplier->delete();
+
+        $response = $this->post(route('articles.suppliers.store', $article), [
+            'supplier_id' => $supplier->id,
+            'price' => 2.50,
+        ]);
+
+        $response->assertSessionHasErrors('supplier_id');
+        $this->assertDatabaseCount('article_supplier', 1);
+    }
+
+    public function test_bei_geloeschtem_nachfolger_wird_trotzdem_der_standard_gesetzt(): void
+    {
+        $article = Article::factory()->create();
+        $standard = Supplier::factory()->create();
+        $nachfolger = Supplier::factory()->create();
+        $article->suppliers()->attach($standard->id, ['price' => 1.00, 'is_default' => true]);
+        $article->suppliers()->attach($nachfolger->id, ['price' => 2.00, 'is_default' => false]);
+        $nachfolger->delete();
+
+        $this->delete(route('articles.suppliers.destroy', [$article, $standard]));
+
+        $this->assertDatabaseHas('article_supplier', [
+            'article_id' => $article->id,
+            'supplier_id' => $nachfolger->id,
+            'is_default' => true,
+        ]);
+    }
+
     public function test_negativer_preis_wird_abgelehnt(): void
     {
         $article = Article::factory()->create();
