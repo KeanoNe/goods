@@ -30,6 +30,8 @@ class ArticleSupplierController extends Controller
         }
 
         DB::transaction(function () use ($article, $validated) {
+            Article::whereKey($article->id)->lockForUpdate()->first();
+
             $alsStandard = ($validated['is_default'] ?? false) || $article->suppliers()->doesntExist();
 
             if ($alsStandard) {
@@ -47,7 +49,10 @@ class ArticleSupplierController extends Controller
     }
 
     /**
-     * Ändert Stückpreis oder Standardmarkierung einer bestehenden Zuordnung.
+     * Ändert den Stückpreis einer bestehenden Zuordnung. Die Standardmarkierung
+     * wird nur verändert, wenn `is_default` ausdrücklich auf true gesetzt wird —
+     * fehlt sie oder ist sie false, bleibt der bisherige Standard unangetastet,
+     * damit ein Artikel nie ohne Standard zurückbleibt.
      */
     public function update(Request $request, Article $article, Supplier $supplier)
     {
@@ -59,16 +64,16 @@ class ArticleSupplierController extends Controller
         ]);
 
         DB::transaction(function () use ($article, $supplier, $validated) {
-            $alsStandard = (bool) ($validated['is_default'] ?? false);
+            Article::whereKey($article->id)->lockForUpdate()->first();
 
-            if ($alsStandard) {
+            $pivotDaten = ['price' => $validated['price']];
+
+            if ($validated['is_default'] ?? false) {
                 $this->standardZuruecksetzen($article);
+                $pivotDaten['is_default'] = true;
             }
 
-            $article->suppliers()->updateExistingPivot($supplier->id, [
-                'price' => $validated['price'],
-                'is_default' => $alsStandard,
-            ]);
+            $article->suppliers()->updateExistingPivot($supplier->id, $pivotDaten);
         });
 
         return redirect()->route('articles.show', $article)
@@ -81,11 +86,15 @@ class ArticleSupplierController extends Controller
      */
     public function destroy(Article $article, Supplier $supplier)
     {
-        $zuordnung = $article->suppliers()->whereKey($supplier->id)->first();
+        abort_unless($article->suppliers()->whereKey($supplier->id)->exists(), 404);
 
-        abort_unless($zuordnung !== null, 404);
+        DB::transaction(function () use ($article, $supplier) {
+            Article::whereKey($article->id)->lockForUpdate()->first();
 
-        DB::transaction(function () use ($article, $supplier, $zuordnung) {
+            $zuordnung = $article->suppliers()->whereKey($supplier->id)->first();
+
+            abort_unless($zuordnung !== null, 404);
+
             $warStandard = (bool) $zuordnung->pivot->is_default;
 
             $article->suppliers()->detach($supplier->id);

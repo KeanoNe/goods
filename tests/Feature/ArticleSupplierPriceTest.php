@@ -102,6 +102,28 @@ class ArticleSupplierPriceTest extends TestCase
         ]);
     }
 
+    public function test_preisaenderung_ohne_is_default_laesst_standard_unveraendert(): void
+    {
+        $article = Article::factory()->create();
+        $supplier = Supplier::factory()->create();
+        $article->suppliers()->attach($supplier->id, ['price' => 1.00, 'is_default' => true]);
+
+        $this->put(route('articles.suppliers.update', [$article, $supplier]), [
+            'price' => 1.50,
+        ]);
+
+        $this->assertDatabaseHas('article_supplier', [
+            'article_id' => $article->id,
+            'supplier_id' => $supplier->id,
+            'price' => 1.50,
+            'is_default' => true,
+        ]);
+        $this->assertSame(1, \DB::table('article_supplier')
+            ->where('article_id', $article->id)
+            ->where('is_default', true)
+            ->count());
+    }
+
     public function test_neuer_standard_entzieht_dem_alten_die_markierung(): void
     {
         $article = Article::factory()->create();
