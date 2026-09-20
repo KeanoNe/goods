@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class WarehouseFactory extends Factory
 {
     /**
+     * Definiert den Standardzustand des Modells.
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
@@ -18,7 +20,7 @@ class WarehouseFactory extends Factory
         return [
             'name' => 'Lager '.fake()->unique()->numerify('##'),
             'description' => fake()->sentence(),
-            'location' => fake()->city(),
+            'location' => fake()->streetAddress(),
             'notes' => null,
         ];
     }

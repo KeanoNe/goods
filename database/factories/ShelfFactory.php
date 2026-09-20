@@ -12,12 +12,14 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class ShelfFactory extends Factory
 {
     /**
+     * Definiert den Standardzustand des Modells.
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'name' => 'Boden '.fake()->unique()->numerify('##'),
+            'name' => 'Fach '.fake()->unique()->numerify('##'),
             'description' => fake()->sentence(),
             'rack_id' => Rack::factory(),
             'notes' => null,

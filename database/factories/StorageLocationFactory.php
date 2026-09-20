@@ -12,12 +12,14 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class StorageLocationFactory extends Factory
 {
     /**
+     * Definiert den Standardzustand des Modells.
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->bothify('?#-#-##'),
+            'name' => 'Lagerplatz '.fake()->unique()->numerify('##'),
             'description' => fake()->sentence(),
             'shelf_id' => Shelf::factory(),
             'notes' => null,

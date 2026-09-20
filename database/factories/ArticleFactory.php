@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class ArticleFactory extends Factory
 {
     /**
+     * Definiert den Standardzustand des Modells.
+     *
      * @return array<string, mixed>
      */
     public function definition(): array

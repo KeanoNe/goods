@@ -12,12 +12,14 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class RackFactory extends Factory
 {
     /**
+     * Definiert den Standardzustand des Modells.
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'name' => 'Regal '.fake()->unique()->bothify('?##'),
+            'name' => 'Regal '.fake()->unique()->numerify('##'),
             'description' => fake()->sentence(),
             'warehouse_id' => Warehouse::factory(),
             'notes' => null,
