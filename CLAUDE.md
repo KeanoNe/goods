@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Projekt
 
-"goods" ist eine Lagerverwaltung (Warehouse Management) als Laravel-Monolith mit Inertia.js v2 + Vue 3 SPA-Frontend. Die gesamte Domäne, UI-Texte, Flash-Messages und Code-Kommentare sind auf Deutsch — neue Strings und Kommentare ebenfalls auf Deutsch schreiben.
+"goods" ist eine Lagerverwaltung (Warehouse Management) als Laravel-Monolith mit Inertia.js v3 + Vue 3 SPA-Frontend. Die gesamte Domäne, UI-Texte, Flash-Messages und Code-Kommentare sind auf Deutsch — neue Strings und Kommentare ebenfalls auf Deutsch schreiben.
 
 ## Befehle
 
@@ -71,7 +71,12 @@ Im Frontend werden URLs über Ziggy erzeugt (`route('warehouses.index')`, global
 - `resources/js/Pages/**` — Inertia-Seiten, aufgelöst über `import.meta.glob`. Ordnerstruktur spiegelt die Domäne (`Warehouses/`, `Articles/`, `StockMovement/`, …).
 - Upsert-Pattern: Anlegen und Bearbeiten teilen sich eine Komponente (`UpsertWarehouse.vue`, `UpsertRack.vue`, `UpsertShelf.vue`, `UpsertStorageLocation.vue`, `UpsertArticle.vue`) — Edit-Modus wird am übergebenen Model-Prop erkannt.
 - `Pages/Warehouses/Index.vue` ist die zentrale Verwaltungsseite und bekommt Warehouses, Racks, Shelves und Locations in **einem** Render geliefert; die Tabellen liegen in `Pages/Warehouses/Components/`.
-- Charts: ApexCharts (`vue3-apexcharts`, global registriert), verwendet im Dashboard.
+- Charts: ApexCharts, global registriert in `resources/js/app.js`, verwendet in `Pages/Articles/Show.vue`.
+  Wichtig: Der Import läuft über `vue3-apexcharts/core`, **nicht** über `vue3-apexcharts` — der
+  Default-Einstieg liefert eine fest einkompilierte Kopie von ApexCharts 5.10.0 mit und ignoriert
+  die installierte Version. Da `apexcharts/core` ohne Chart-Typen kommt, sind die benötigten Typen
+  per Seiteneffekt zu importieren (`import "apexcharts/bar"`); für einen neuen Diagrammtyp ist der
+  passende Import zu ergänzen, sonst bricht das Rendern mit `chart type ... is not registered`.
 - Jetstream-Standardkomponenten liegen unverändert in `resources/js/Components/` — vor dem Bauen neuer UI-Bausteine dort nachsehen.
 
 ## Authentifizierung
@@ -84,13 +89,15 @@ Jetstream (Inertia-Stack) + Fortify. Beachten, was in der Config **abgeschaltet*
 
 ## Tests
 
-`tests/Feature/` enthält ausschließlich die Jetstream-Standardtests. Für die eigentliche Domäne (Warehouse/Rack/Shelf/StorageLocation/Article/Stock/StockMovement) existieren weder Tests noch Factories — `database/factories/` hat nur `UserFactory`. Beim Testen von Domänenlogik zuerst die fehlenden Factories anlegen (`php artisan make:factory --no-interaction`).
+Neben den Jetstream-Standardtests decken `StorageLocationQrCodeTest` den QR-Endpunkt und `InertiaSeitenSmokeTest` alle Inertia-Seiten auf Statuscode und Komponente ab.
 
-Achtung: In `phpunit.xml` sind `DB_CONNECTION=sqlite` und `DB_DATABASE=:memory:` **auskommentiert**. Tests laufen damit gegen die Datenbank aus `.env`. Testfälle immer mit `RefreshDatabase` schreiben und im Zweifel vorher klären, ob die beiden Zeilen aktiviert werden sollen.
+Factories gibt es für `User`, `Warehouse`, `Rack`, `Shelf` und `StorageLocation`. Für `Article`, `Stock` und `StockMovement` fehlen sie noch — beim Testen dieser Modelle zuerst anlegen (`php artisan make:factory --no-interaction`).
+
+Tests laufen über `phpunit.xml` fest gegen die MySQL-Datenbank `goods_test`; die Zugangsdaten kommen weiterhin aus `.env`. Die Entwicklungsdatenbank `goods` bleibt dadurch unangetastet — wichtig, weil `RefreshDatabase` die Zieldatenbank leert. Testfälle immer mit `RefreshDatabase` schreiben.
 
 ## Hinweis zu den Boost-Guidelines unten
 
-Der folgende Block wird von `php artisan boost:install` generiert und ist teilweise veraltet. Tatsächlich installiert sind: **Laravel 13.4** (nicht 11), **PHPUnit 12** (nicht 11), **Jetstream 5.5 + Fortify 1.36**, PHP 8.5, Inertia Laravel 2.0 / `@inertiajs/vue3` 1.x, Tailwind 3, Vue 3. Bei Widersprüchen gelten `composer.json`/`composer.lock`. Der MCP-Server `laravel-boost` ist in `.mcp.json` konfiguriert, war zuletzt aber nicht erreichbar — dann auf `php artisan`-Befehle direkt ausweichen.
+Der folgende Block wird von `php artisan boost:install` generiert und ist teilweise veraltet. Tatsächlich installiert sind: **Laravel 13.32** (nicht 11), **PHPUnit 13** (nicht 11), **Jetstream 5.5 + Fortify 1.39**, PHP 8.5, **Inertia 3** (`inertiajs/inertia-laravel` 3.3 und `@inertiajs/vue3` 3.7 — die Hinweise zu Inertia v1/v2 weiter unten sind überholt), **Tailwind 4** (CSS-first konfiguriert in `resources/css/app.css`, es gibt keine `tailwind.config.js` mehr), **Vite 8** (Rolldown-basiert), Vue 3. Bei Widersprüchen gelten `composer.json`/`composer.lock`. Der MCP-Server `laravel-boost` ist in `.mcp.json` konfiguriert, war zuletzt aber nicht erreichbar — dann auf `php artisan`-Befehle direkt ausweichen.
 
 ---
 

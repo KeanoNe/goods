@@ -21,7 +21,7 @@
                             <input
                                 type="text"
                                 v-model="form.name"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
                                 required
                             />
                             <div
@@ -41,7 +41,7 @@
                             <input
                                 type="text"
                                 v-model="form.location"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
                             />
                             <div
                                 v-if="form.errors.location"
@@ -60,7 +60,7 @@
                             <textarea
                                 v-model="form.description"
                                 rows="3"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
                             ></textarea>
                             <div
                                 v-if="form.errors.description"
@@ -79,7 +79,7 @@
                             <textarea
                                 v-model="form.notes"
                                 rows="3"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
                             ></textarea>
                             <div
                                 v-if="form.errors.notes"
@@ -93,13 +93,13 @@
                         <div class="flex justify-end space-x-3">
                             <Link
                                 :href="route('warehouses.index')"
-                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-xs hover:bg-gray-50"
                             >
                                 Abbrechen
                             </Link>
                             <button
                                 type="submit"
-                                class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700"
+                                class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-xs hover:bg-indigo-700"
                                 :disabled="form.processing"
                             >
                                 {{ warehouse ? "Speichern" : "Erstellen" }}
