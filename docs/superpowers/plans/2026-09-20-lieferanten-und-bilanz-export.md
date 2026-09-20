@@ -1470,6 +1470,24 @@ class ArticleSupplierPriceTest extends TestCase
         ]);
     }
 
+    public function test_reines_preis_update_laesst_die_standardmarkierung_unberuehrt(): void
+    {
+        $article = Article::factory()->create();
+        $supplier = Supplier::factory()->create();
+        $article->suppliers()->attach($supplier->id, ['price' => 1.00, 'is_default' => true]);
+
+        $this->put(route('articles.suppliers.update', [$article, $supplier]), [
+            'price' => 1.75,
+        ]);
+
+        $this->assertDatabaseHas('article_supplier', [
+            'article_id' => $article->id,
+            'supplier_id' => $supplier->id,
+            'price' => 1.75,
+            'is_default' => true,
+        ]);
+    }
+
     public function test_neuer_standard_entzieht_dem_alten_die_markierung(): void
     {
         $article = Article::factory()->create();
@@ -1606,16 +1624,17 @@ class ArticleSupplierController extends Controller
         ]);
 
         DB::transaction(function () use ($article, $supplier, $validated) {
-            $alsStandard = (bool) ($validated['is_default'] ?? false);
+            $pivotWerte = ['price' => $validated['price']];
 
-            if ($alsStandard) {
+            // is_default wird nur angefasst, wenn die Anfrage es ausdrücklich
+            // auf true setzt. Ein reines Preis-Update darf die
+            // Standardmarkierung nicht stillschweigend entfernen.
+            if ($validated['is_default'] ?? false) {
                 $this->standardZuruecksetzen($article);
+                $pivotWerte['is_default'] = true;
             }
 
-            $article->suppliers()->updateExistingPivot($supplier->id, [
-                'price' => $validated['price'],
-                'is_default' => $alsStandard,
-            ]);
+            $article->suppliers()->updateExistingPivot($supplier->id, $pivotWerte);
         });
 
         return redirect()->route('articles.show', $article)
