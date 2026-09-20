@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class ArticleSupplierPriceTest extends TestCase
@@ -181,5 +182,24 @@ class ArticleSupplierPriceTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('price');
+    }
+
+    public function test_artikelseite_liefert_lieferanten_und_auswahlliste(): void
+    {
+        $article = Article::factory()->create();
+        $zugeordnet = Supplier::factory()->create(['name' => 'Zugeordnet']);
+        $frei = Supplier::factory()->create(['name' => 'Frei']);
+        $article->suppliers()->attach($zugeordnet->id, ['price' => 4.20, 'is_default' => true]);
+
+        $response = $this->get(route('articles.show', $article));
+
+        $response->assertOk();
+        $response->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Articles/Show')
+            ->has('article.suppliers', 1)
+            ->where('article.suppliers.0.name', 'Zugeordnet')
+            ->where('article.suppliers.0.pivot.price', '4.20')
+            ->has('availableSuppliers', 2)
+        );
     }
 }
