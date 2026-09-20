@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Rack;
 use App\Models\Shelf;
 use App\Models\StorageLocation;
+use App\Models\Supplier;
 use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -50,6 +51,9 @@ class InertiaSeitenSmokeTest extends TestCase
             'Lagerplatz-Papierkorb' => ['storage-locations.trashed', 'StorageLocations/Trashed'],
             'Artikel' => ['articles.index', 'Articles/Index'],
             'Artikel anlegen' => ['articles.create', 'Articles/UpsertArticle'],
+            'Lieferanten' => ['suppliers.index', 'Suppliers/Index'],
+            'Lieferant anlegen' => ['suppliers.create', 'Suppliers/UpsertSupplier'],
+            'Lieferanten-Papierkorb' => ['suppliers.trashed', 'Suppliers/Trashed'],
             'Bestandsbewegungen' => ['stock.movements.index', 'StockMovement/Index'],
         ];
     }
@@ -98,5 +102,16 @@ class InertiaSeitenSmokeTest extends TestCase
         $this->get(route('storage-locations.edit', $storageLocation))
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page->component('StorageLocations/UpsertStorageLocation'));
+    }
+
+    public function test_bearbeitungsseite_des_lieferanten_rendert(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $supplier = Supplier::factory()->create();
+
+        $this->get(route('suppliers.edit', $supplier))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page->component('Suppliers/UpsertSupplier'));
     }
 }

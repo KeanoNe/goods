@@ -74,6 +74,14 @@ const logout = () => {
                                 >
                                     Lager
                                 </NavLink>
+                                <NavLink
+                                    :href="route('suppliers.index')"
+                                    :active="
+                                        route().current('suppliers.index')
+                                    "
+                                >
+                                    Lieferanten
+                                </NavLink>
                             </div>
                         </div>
 
@@ -367,13 +375,19 @@ const logout = () => {
                             :href="route('articles.index')"
                             :active="route().current('articles.index')"
                         >
-                            Dashboard
+                            Artikel
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('warehouses.index')"
                             :active="route().current('warehouses.index')"
                         >
                             Lager
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('suppliers.index')"
+                            :active="route().current('suppliers.index')"
+                        >
+                            Lieferanten
                         </ResponsiveNavLink>
                     </div>
 
