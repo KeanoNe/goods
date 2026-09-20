@@ -2486,6 +2486,21 @@ wird
                 );
 ```
 
+**Nachtrag aus der Umsetzung:** Zwei Korrekturen gegenüber dem obigen Code —
+die Dateien im Repository sind maßgeblich:
+
+1. Die Optionen zeigen den Preis über eine Methode `waehrung(wert)` mit
+   `Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" })`, nicht
+   als rohen Dezimalstring mit angehängtem `€`. Sonst steht dort `1.50 €`
+   statt `1,50 €`.
+2. `StockMovementController::update()` bekommt eine deutsche Meldung für die
+   `supplier_id.exists`-Regel (`'Der gewählte Lieferant ist diesem Artikel
+   nicht zugeordnet.'`). Das Projekt hat keine deutschen Sprachdateien; ohne
+   diese Meldung zeigt das Formular Laravels englischen Standardtext an.
+   Bewusst nur diese eine Regel — `lang/de/validation.php` bleibt ungepflegt.
+
+Außerdem sind Label und Select über `:for`/`:id` mit `stock.id` verknüpft.
+
 - [ ] **Step 5: Bauen und die betroffenen Tests ausführen**
 
 ```bash
