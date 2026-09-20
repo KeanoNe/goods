@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\BalanceReportService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,6 +24,38 @@ class BalanceReportController extends Controller
             'articles' => $bericht['articles'],
             'grandTotal' => $bericht['grand_total'],
         ]);
+    }
+
+    public function export(Request $request)
+    {
+        $validated = $request->validate([
+            'from' => 'required|date',
+            'to' => 'required|date|after_or_equal:from',
+            'format' => 'required|in:pdf,xlsx',
+        ]);
+
+        $from = Carbon::parse($validated['from'])->startOfDay();
+        $to = Carbon::parse($validated['to'])->endOfDay();
+
+        $bericht = $this->balanceReport->build($from, $to);
+
+        $dateiname = sprintf(
+            'bilanz_%s_bis_%s',
+            $from->format('Y-m-d'),
+            $to->format('Y-m-d')
+        );
+
+        return $this->alsPdf($bericht, $dateiname);
+    }
+
+    /**
+     * @param  array<string, mixed>  $bericht
+     */
+    private function alsPdf(array $bericht, string $dateiname)
+    {
+        return Pdf::loadView('reports.balance', $bericht)
+            ->setPaper('a4')
+            ->download($dateiname.'.pdf');
     }
 
     /**

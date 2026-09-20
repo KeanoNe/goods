@@ -173,5 +173,6 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/balance', [BalanceReportController::class, 'index'])->name('balance.index');
+        Route::get('/balance/export', [BalanceReportController::class, 'export'])->name('balance.export');
     });
 });
