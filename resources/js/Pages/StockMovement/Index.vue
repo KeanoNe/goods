@@ -77,6 +77,31 @@
                                         />
                                     </div>
 
+                                    <div v-if="stock.suppliers.length">
+                                        <label
+                                            class="block text-sm font-medium text-gray-700"
+                                            >Lieferant</label
+                                        >
+                                        <select
+                                            v-model="suppliers[stock.id]"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        >
+                                            <option :value="null">
+                                                — kein Lieferant —
+                                            </option>
+                                            <option
+                                                v-for="supplier in stock.suppliers"
+                                                :key="supplier.id"
+                                                :value="supplier.id"
+                                            >
+                                                {{ supplier.name }} ({{
+                                                    supplier.price
+                                                }}
+                                                €)
+                                            </option>
+                                        </select>
+                                    </div>
+
                                     <div class="flex space-x-4">
                                         <button
                                             type="button"
@@ -203,6 +228,7 @@ export default defineComponent({
         return {
             location: null,
             quantities: {},
+            suppliers: {},
             showScanner: false,
             flash: {
                 message: null,
@@ -274,6 +300,8 @@ export default defineComponent({
                 // Initialize quantities for each stock
                 this.location.stocks?.forEach((stock) => {
                     this.quantities[stock.id] = 1;
+                    // Vorauswahl: der als Standard markierte Lieferant des Artikels
+                    this.suppliers[stock.id] = stock.default_supplier_id ?? null;
                 });
             } catch (error) {
                 this.showFlash(
@@ -301,6 +329,7 @@ export default defineComponent({
                         article_id: articleId,
                         quantity: this.quantities[articleId],
                         type: moveType,
+                        supplier_id: this.suppliers[articleId] ?? null,
                     }
                 );
 
@@ -323,9 +352,13 @@ export default defineComponent({
 
                 this.quantities[articleId] = 1;
             } catch (error) {
+                const validierungsfehler = error.response?.data?.errors;
+
                 this.showFlash(
-                    error.response?.data?.message ||
-                        "Fehler bei der Bestandsänderung",
+                    validierungsfehler
+                        ? Object.values(validierungsfehler).flat().join(" ")
+                        : error.response?.data?.message ||
+                              "Fehler bei der Bestandsänderung",
                     "error"
                 );
             }
