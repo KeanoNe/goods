@@ -529,7 +529,9 @@ import { ref } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Modal from "@/Components/Modal.vue";
 import Pagination from "@/Components/Pagination.vue";
-import VueApexCharts from "vue3-apexcharts";
+import "apexcharts/bar";
+import "apexcharts/line";
+import VueApexCharts from "vue3-apexcharts/core";
 
 const props = defineProps({
     article: Object,
