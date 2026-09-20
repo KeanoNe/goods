@@ -7,6 +7,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Writer\XLSX\Writer;
 
 class BalanceReportController extends Controller
 {
@@ -45,7 +48,9 @@ class BalanceReportController extends Controller
             $to->format('Y-m-d')
         );
 
-        return $this->alsPdf($bericht, $dateiname);
+        return $validated['format'] === 'pdf'
+            ? $this->alsPdf($bericht, $dateiname)
+            : $this->alsXlsx($bericht, $dateiname);
     }
 
     /**
@@ -56,6 +61,65 @@ class BalanceReportController extends Controller
         return Pdf::loadView('reports.balance', $bericht)
             ->setPaper('a4')
             ->download($dateiname.'.pdf');
+    }
+
+    /**
+     * @param  array<string, mixed>  $bericht
+     */
+    private function alsXlsx(array $bericht, string $dateiname)
+    {
+        return response()->streamDownload(function () use ($bericht) {
+            $fett = (new Style)->withFontBold(true);
+
+            $writer = new Writer;
+            $writer->openToFile('php://output');
+
+            $writer->addRow(Row::fromValuesWithStyle(['Bestandsbilanz'], $fett));
+            $writer->addRow(Row::fromValues([sprintf(
+                'Zeitraum: %s - %s',
+                $bericht['from']->format('d.m.Y'),
+                $bericht['to']->format('d.m.Y')
+            )]));
+            $writer->addRow(Row::fromValues(['Erstellt am: '.now()->format('d.m.Y')]));
+            $writer->addRow(Row::fromValues([]));
+
+            $writer->addRow(Row::fromValuesWithStyle(
+                ['Artikelnummer', 'Bezeichnung', 'Lieferant', 'Menge', 'Stückpreis', 'Gesamtwert'],
+                $fett
+            ));
+
+            foreach ($bericht['articles'] as $artikel) {
+                foreach ($artikel['rows'] as $index => $zeile) {
+                    $writer->addRow(Row::fromValues([
+                        $index === 0 ? $artikel['sku'] : '',
+                        $index === 0 ? $artikel['name'] : '',
+                        $zeile['supplier'],
+                        $zeile['quantity'],
+                        $zeile['unit_price'],
+                        $zeile['total'],
+                    ]));
+                }
+
+                $writer->addRow(Row::fromValuesWithStyle(
+                    ['', 'Zwischensumme '.$artikel['name'], '', '', '', $artikel['subtotal']],
+                    $fett
+                ));
+            }
+
+            $writer->addRow(Row::fromValuesWithStyle(
+                ['', 'Gesamtsumme', '', '', '', $bericht['grand_total']],
+                $fett
+            ));
+
+            $writer->addRow(Row::fromValues([]));
+            $writer->addRow(Row::fromValues([]));
+            $writer->addRow(Row::fromValues(['_______________________', '', '_______________________']));
+            $writer->addRow(Row::fromValues(['Ort, Datum', '', 'Unterschrift']));
+
+            $writer->close();
+        }, $dateiname.'.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
 
     /**

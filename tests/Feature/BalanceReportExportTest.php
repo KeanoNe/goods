@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\BalanceReportService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use OpenSpout\Reader\XLSX\Reader;
 use Tests\TestCase;
 
 class BalanceReportExportTest extends TestCase
@@ -87,6 +88,72 @@ class BalanceReportExportTest extends TestCase
             'to' => '2026-01-31',
             'format' => 'pdf',
         ]))->assertRedirect(route('login'));
+    }
+
+    public function test_xlsx_wird_als_download_ausgeliefert(): void
+    {
+        $this->bewegungAnlegen();
+
+        $response = $this->get(route('reports.balance.export', [
+            'from' => '2026-01-01',
+            'to' => '2026-01-31',
+            'format' => 'xlsx',
+        ]));
+
+        $response->assertOk();
+        $response->assertDownload('bilanz_2026-01-01_bis_2026-01-31.xlsx');
+        $response->assertHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+    }
+
+    public function test_xlsx_enthaelt_tabelle_summen_und_unterschriftenblock(): void
+    {
+        $this->bewegungAnlegen();
+
+        $response = $this->get(route('reports.balance.export', [
+            'from' => '2026-01-01',
+            'to' => '2026-01-31',
+            'format' => 'xlsx',
+        ]));
+
+        $pfad = tempnam(sys_get_temp_dir(), 'bilanz').'.xlsx';
+        file_put_contents($pfad, $response->streamedContent());
+
+        $zeilen = [];
+        $reader = new Reader;
+        $reader->open($pfad);
+
+        foreach ($reader->getSheetIterator() as $sheet) {
+            foreach ($sheet->getRowIterator() as $row) {
+                $zeilen[] = $row->toArray();
+            }
+        }
+
+        $reader->close();
+        unlink($pfad);
+
+        $ersteSpalte = array_map(fn ($zeile) => (string) ($zeile[0] ?? ''), $zeilen);
+        $zweiteSpalte = array_map(fn ($zeile) => (string) ($zeile[1] ?? ''), $zeilen);
+
+        $this->assertContains('Bestandsbilanz', $ersteSpalte);
+        $this->assertContains('Artikelnummer', $ersteSpalte);
+        $this->assertContains('SKU-7', $ersteSpalte);
+        $this->assertContains('Ort, Datum', $ersteSpalte);
+        $this->assertContains('Gesamtsumme', $zweiteSpalte);
+
+        $datenzeile = collect($zeilen)->first(fn ($zeile) => ($zeile[0] ?? null) === 'SKU-7');
+
+        $this->assertSame('Mutter', $datenzeile[1]);
+        $this->assertSame('Mueller', $datenzeile[2]);
+        $this->assertEquals(10, $datenzeile[3]);
+        $this->assertEquals(2.0, $datenzeile[4]);
+        $this->assertEquals(20.0, $datenzeile[5]);
+
+        $summenzeile = collect($zeilen)->first(fn ($zeile) => ($zeile[1] ?? null) === 'Gesamtsumme');
+
+        $this->assertEquals(20.0, $summenzeile[5]);
     }
 
     protected function bewegungAnlegen(): void
