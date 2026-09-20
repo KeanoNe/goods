@@ -1344,7 +1344,7 @@ Expected: PASS — alle Seiten inklusive der drei neuen Lieferantenseiten.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add resources/js/Pages/Suppliers resources/js/Layouts/AppLayout.vue tests/Feature/InertiaSeitenSmokeTest.php public/build
+git add resources/js/Pages/Suppliers resources/js/Layouts/AppLayout.vue tests/Feature/InertiaSeitenSmokeTest.php
 git commit -m "Lieferantenseiten und Navigationseintrag ergänzen"
 ```
 
@@ -2021,7 +2021,7 @@ Expected: PASS (9 Tests).
 
 ```bash
 vendor/bin/pint --dirty --format agent
-git add app/Http/Controllers/ArticleManagementController.php resources/js/Pages/Articles tests/Feature/ArticleSupplierPriceTest.php public/build
+git add app/Http/Controllers/ArticleManagementController.php resources/js/Pages/Articles tests/Feature/ArticleSupplierPriceTest.php
 git commit -m "Preispflege für Lieferanten auf der Artikelseite"
 ```
 
@@ -2463,7 +2463,7 @@ Expected: PASS. Das Frontend selbst ist nicht automatisiert getestet — es gibt
 - [ ] **Step 6: Commit**
 
 ```bash
-git add resources/js/Pages/StockMovement/Index.vue public/build
+git add resources/js/Pages/StockMovement/Index.vue
 git commit -m "Lieferantenauswahl im Buchungsformular"
 ```
 
@@ -3214,7 +3214,7 @@ Expected: PASS.
 
 ```bash
 vendor/bin/pint --dirty --format agent
-git add app/Http/Controllers/BalanceReportController.php resources/js/Pages/Reports resources/js/Layouts/AppLayout.vue routes/web.php tests/Feature/BalanceReportPageTest.php tests/Feature/InertiaSeitenSmokeTest.php public/build
+git add app/Http/Controllers/BalanceReportController.php resources/js/Pages/Reports resources/js/Layouts/AppLayout.vue routes/web.php tests/Feature/BalanceReportPageTest.php tests/Feature/InertiaSeitenSmokeTest.php
 git commit -m "Bilanzseite mit Zeitraumfilter und Vorschau"
 ```
 
