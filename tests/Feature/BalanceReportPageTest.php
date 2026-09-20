@@ -48,7 +48,7 @@ class BalanceReportPageTest extends TestCase
             'supplier_id' => $supplier->id,
             'type' => 'in',
             'quantity' => 10,
-            'unit_price' => 2.00,
+            'unit_price' => 1.99,
             'created_at' => Carbon::parse('2026-01-15'),
         ]);
 
@@ -64,11 +64,7 @@ class BalanceReportPageTest extends TestCase
             ->where('articles.0.sku', 'SKU-7')
             ->where('articles.0.rows.0.supplier', 'Mueller')
             ->where('articles.0.rows.0.quantity', 10)
-            // Inertias Test-Helper serialisiert die Props über
-            // json_decode(json_encode(...)); dabei macht PHP aus einem
-            // ganzzahligen Float (20.0) einen Integer (20). Deshalb hier
-            // ein Wertevergleich statt ->where() mit striktem Typvergleich.
-            ->where('grandTotal', fn ($wert) => $wert == 20.0)
+            ->where('grandTotal', 19.90)
         );
     }
 
@@ -80,6 +76,30 @@ class BalanceReportPageTest extends TestCase
         ]));
 
         $response->assertSessionHasErrors('to');
+    }
+
+    public function test_bei_ungueltigem_zeitraum_liefert_der_redirect_weiterhin_den_zuletzt_gueltigen_zeitraum(): void
+    {
+        $this->get(route('reports.balance.index', [
+            'from' => '2026-02-01',
+            'to' => '2026-02-10',
+        ]))->assertOk();
+
+        $response = $this->get(route('reports.balance.index', [
+            'from' => '2026-03-31',
+            'to' => '2026-03-01',
+        ]));
+
+        $response->assertSessionHasErrors('to');
+
+        $ziel = $this->get($response->headers->get('Location'));
+
+        $ziel->assertOk();
+        $ziel->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Reports/Balance')
+            ->where('from', '2026-02-01')
+            ->where('to', '2026-02-10')
+        );
     }
 
     public function test_bilanzseite_ist_fuer_gaeste_gesperrt(): void

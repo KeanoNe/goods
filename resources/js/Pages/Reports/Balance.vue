@@ -143,7 +143,7 @@
 
 <script setup>
 import { ref, watch } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/AppLayout.vue";
 
 const props = defineProps({
@@ -153,6 +153,8 @@ const props = defineProps({
     grandTotal: Number,
 });
 
+const page = usePage();
+
 const von = ref(props.from);
 const bis = ref(props.to);
 
@@ -161,17 +163,27 @@ const bis = ref(props.to);
 // router.get mit preserveState arbeitet und die Komponente nicht neu
 // gemountet wird, müssen die Eingabefelder bei neuen Props aktiv
 // nachgezogen werden, damit sie nie von der angezeigten Tabelle abweichen.
+//
+// Ausnahme: Bei einer fehlgeschlagenen Validierung leitet Laravel auf die
+// zuletzt erfolgreich aufgerufene URL zurück, sodass from/to hier die alten,
+// gültigen Werte enthalten. In dem Fall dürfen die Eingabefelder nicht
+// überschrieben werden, sonst verschwinden die vom Benutzer eingetippten
+// (fehlerhaften) Werte, obwohl die Fehlermeldung noch angezeigt wird.
 watch(
     () => props.from,
     (wert) => {
-        von.value = wert;
+        if (!page.props.errors.from && !page.props.errors.to) {
+            von.value = wert;
+        }
     }
 );
 
 watch(
     () => props.to,
     (wert) => {
-        bis.value = wert;
+        if (!page.props.errors.from && !page.props.errors.to) {
+            bis.value = wert;
+        }
     }
 );
 
