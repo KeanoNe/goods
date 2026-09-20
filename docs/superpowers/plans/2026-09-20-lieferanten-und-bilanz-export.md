@@ -2001,6 +2001,22 @@ const zuordnungEntfernen = (supplier) => {
 </script>
 ```
 
+**Nachtrag aus der Umsetzung:** Der obige Komponentencode hat drei Mängel, die
+bei der Implementierung behoben wurden — die Datei im Repository ist maßgeblich:
+
+1. `preise` darf nicht einmalig bei `setup` aus den Props aufgebaut werden.
+   `router.post`/`put`/`delete` laufen in Inertia 3 mit `preserveState: true`
+   (`@inertiajs/core` `index.js:3100-3109`), die Seitenkomponente wird also
+   **nicht** neu gemountet. Ein neu zugeordneter Lieferant hätte sonst ein
+   leeres Preisfeld, und das anschließende Speichern schickt `price: undefined`
+   und scheitert stillschweigend. Stattdessen ein `watch` auf
+   `() => props.article.suppliers` mit `{ immediate: true, deep: true }`, der
+   Einträge ergänzt und entfernt, ohne bestehende Werte zu überschreiben.
+2. `$page.props.errors.price` muss unter dem Preisfeld ausgegeben werden,
+   sonst scheitert eine abgelehnte Preiseingabe ohne Rückmeldung.
+3. Die Standard-Radiobuttons brauchen ein gemeinsames `name`-Attribut
+   (`name="standard-lieferant"`).
+
 - [ ] **Step 6: Komponente in Show.vue einbinden**
 
 In `resources/js/Pages/Articles/Show.vue`:
