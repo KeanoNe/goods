@@ -833,7 +833,7 @@ Expected: FAIL. Ohne vorherigen `npm run build` schlägt das Rendern mit `Unable
                                         @click="openDeleteDialog(supplier)"
                                         class="text-red-600 hover:text-red-900"
                                     >
-                                        Loeschen
+                                        Löschen
                                     </button>
                                 </td>
                             </tr>
@@ -848,7 +848,7 @@ Expected: FAIL. Ohne vorherigen `npm run build` schlägt das Rendern mit `Unable
                     <Modal :show="showDeleteDialog" @close="closeDeleteDialog">
                         <div class="p-6">
                             <h2 class="text-lg font-medium text-red-900">
-                                Lieferant loeschen
+                                Lieferant löschen
                             </h2>
                             <p class="mt-3 text-sm text-gray-600">
                                 Der Lieferant wandert in den Papierkorb und kann
@@ -867,7 +867,7 @@ Expected: FAIL. Ohne vorherigen `npm run build` schlägt das Rendern mit `Unable
                                     class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-xs hover:bg-red-700"
                                     @click="confirmDelete"
                                 >
-                                    Loeschen
+                                    Löschen
                                 </button>
                             </div>
                         </div>
