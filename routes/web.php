@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArticleManagementController;
 use App\Http\Controllers\ArticleStorageLocationController;
+use App\Http\Controllers\ArticleSupplierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RackManagementController;
 use App\Http\Controllers\ShelfManagementController;
@@ -118,6 +119,15 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
     Route::post('/articles/{article}/storage-locations/{storageLocation}/correction', [ArticleStorageLocationController::class, 'correction'])
         ->name('articles.storage-locations.correction');
+
+    Route::post('/articles/{article}/suppliers', [ArticleSupplierController::class, 'store'])
+        ->name('articles.suppliers.store');
+
+    Route::put('/articles/{article}/suppliers/{supplier}', [ArticleSupplierController::class, 'update'])
+        ->name('articles.suppliers.update');
+
+    Route::delete('/articles/{article}/suppliers/{supplier}', [ArticleSupplierController::class, 'destroy'])
+        ->name('articles.suppliers.destroy');
 });
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
