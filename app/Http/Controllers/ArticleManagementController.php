@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
-use App\Models\Stock;
+use App\Models\StorageLocation;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class ArticleManagementController extends Controller
 {
@@ -16,7 +16,7 @@ class ArticleManagementController extends Controller
             'articles' => Article::query()
                 ->withSum('stocks', 'quantity')
                 ->withCount('stocks')
-                ->get()
+                ->get(),
         ]);
     }
 
@@ -33,8 +33,7 @@ class ArticleManagementController extends Controller
             'sku' => 'required|string|max:255|unique:articles',
             'minimum_stock' => 'required|integer|min:0',
             'barcode' => 'nullable|string|unique:articles',
-            'qr_code' => 'nullable|string|unique:articles',
-            'notes' => 'nullable|string'
+            'notes' => 'nullable|string',
         ]);
 
         Article::create($validated);
@@ -46,7 +45,7 @@ class ArticleManagementController extends Controller
     public function edit(Article $article)
     {
         return Inertia::render('Articles/UpsertArticle', [
-            'article' => $article->load(['stocks.storageLocation.shelf.rack.warehouse'])
+            'article' => $article->load(['stocks.storageLocation.shelf.rack.warehouse']),
         ]);
     }
 
@@ -55,11 +54,10 @@ class ArticleManagementController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'sku' => 'required|string|max:255|unique:articles,sku,' . $article->id,
+            'sku' => 'required|string|max:255|unique:articles,sku,'.$article->id,
             'minimum_stock' => 'required|integer|min:0',
-            'barcode' => 'nullable|string|unique:articles,barcode,' . $article->id,
-            'qr_code' => 'nullable|string|unique:articles,qr_code,' . $article->id,
-            'notes' => 'nullable|string'
+            'barcode' => 'nullable|string|unique:articles,barcode,'.$article->id,
+            'notes' => 'nullable|string',
         ]);
 
         $article->update($validated);
@@ -137,13 +135,13 @@ class ArticleManagementController extends Controller
                 $runningStock += $netChange;
                 $cumulativeStockData[] = [
                     'date' => $dayData['date'],
-                    'stock' => $runningStock
+                    'stock' => $runningStock,
                 ];
             } else {
                 // Vor dem ersten Movement-Tag bleibt der Bestand 0
                 $cumulativeStockData[] = [
                     'date' => $dayData['date'],
-                    'stock' => 0
+                    'stock' => 0,
                 ];
             }
         }
@@ -154,13 +152,13 @@ class ArticleManagementController extends Controller
                 ->with([
                     'fromStorageLocation.shelf.rack.warehouse',
                     'toStorageLocation.shelf.rack.warehouse',
-                    'user'
+                    'user',
                 ])
                 ->latest()
                 ->paginate(10),
-            'availableStorageLocations' => \App\Models\StorageLocation::with('shelf.rack.warehouse')->get(),
+            'availableStorageLocations' => StorageLocation::with('shelf.rack.warehouse')->get(),
             'dailyChanges' => $dailyChanges,
-            'cumulativeStockData' => $cumulativeStockData
+            'cumulativeStockData' => $cumulativeStockData,
         ]);
     }
 
@@ -168,7 +166,7 @@ class ArticleManagementController extends Controller
     {
         $dependencies = [
             'stocks' => $article->stocks()->sum('quantity'),
-            'movements' => $article->stockMovements()->count()
+            'movements' => $article->stockMovements()->count(),
         ];
 
         $article->delete();
@@ -183,7 +181,7 @@ class ArticleManagementController extends Controller
             'trashedArticles' => Article::onlyTrashed()
                 ->withSum('stocks', 'quantity')
                 ->withCount(['stocks', 'stockMovements'])
-                ->get()
+                ->get(),
         ]);
     }
 
