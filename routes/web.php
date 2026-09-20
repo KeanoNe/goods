@@ -2,12 +2,13 @@
 
 use App\Http\Controllers\ArticleManagementController;
 use App\Http\Controllers\ArticleStorageLocationController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RackManagementController;
 use App\Http\Controllers\ShelfManagementController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\StorageLocationManagementController;
+use App\Http\Controllers\SupplierManagementController;
 use App\Http\Controllers\WarehouseManagementController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -46,7 +47,7 @@ Route::middleware([
     })->name('articles');
 });
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])->group(function () {
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
     Route::get('/warehouses', [WarehouseManagementController::class, 'index'])->name('warehouses.index');
     Route::get('/warehouses/create', [WarehouseManagementController::class, 'create'])->name('warehouses.create');
     Route::post('/warehouses', [WarehouseManagementController::class, 'store'])->name('warehouses.store');
@@ -58,7 +59,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])
     Route::delete('/warehouses/{warehouse}/force', [WarehouseManagementController::class, 'forceDelete'])->name('warehouses.force-delete');
 });
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])->group(function () {
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
     // Route::get('/racks', [RackManagementController::class, 'index'])->name('racks.index');
     Route::get('/racks/create', [RackManagementController::class, 'create'])->name('racks.create');
     Route::post('/racks', [RackManagementController::class, 'store'])->name('racks.store');
@@ -70,7 +71,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])
     Route::delete('/racks/{rack}/force', [RackManagementController::class, 'forceDelete'])->name('racks.force-delete');
 });
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])->group(function () {
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
     // Route::get('/shelves', [ShelfManagementController::class, 'index'])->name('shelves.index');
     Route::get('/shelves/create', [ShelfManagementController::class, 'create'])->name('shelves.create');
     Route::post('/shelves', [ShelfManagementController::class, 'store'])->name('shelves.store');
@@ -82,7 +83,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])
     Route::delete('/shelves/{shelf}/force', [ShelfManagementController::class, 'forceDelete'])->name('shelves.force-delete');
 });
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])->group(function () {
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
     // Route::get('/storage-locations', [StorageLocationManagementController::class, 'index'])->name('storage-locations.index');
     Route::get('/storage-locations/create', [StorageLocationManagementController::class, 'create'])->name('storage-locations.create');
     Route::post('/storage-locations', [StorageLocationManagementController::class, 'store'])->name('storage-locations.store');
@@ -96,8 +97,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])
     Route::get('/locations/{storageLocation}/qr-code', [StorageLocationManagementController::class, 'generateQrCode'])->name('storage-locations.qr-code');
 });
 
-
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])->group(function () {
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
     Route::get('/articles', [ArticleManagementController::class, 'index'])->name('articles.index');
     Route::get('/articles/create', [ArticleManagementController::class, 'create'])->name('articles.create');
     Route::post('/articles', [ArticleManagementController::class, 'store'])->name('articles.store');
@@ -120,13 +120,24 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])
         ->name('articles.storage-locations.correction');
 });
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'),'verified'])
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+    Route::get('/suppliers', [SupplierManagementController::class, 'index'])->name('suppliers.index');
+    Route::get('/suppliers/create', [SupplierManagementController::class, 'create'])->name('suppliers.create');
+    Route::get('/suppliers/trashed', [SupplierManagementController::class, 'trashed'])->name('suppliers.trashed');
+    Route::post('/suppliers', [SupplierManagementController::class, 'store'])->name('suppliers.store');
+    Route::get('/suppliers/{supplier}/edit', [SupplierManagementController::class, 'edit'])->name('suppliers.edit');
+    Route::put('/suppliers/{supplier}', [SupplierManagementController::class, 'update'])->name('suppliers.update');
+    Route::delete('/suppliers/{supplier}', [SupplierManagementController::class, 'destroy'])->name('suppliers.destroy');
+    Route::put('/suppliers/{supplier}/restore', [SupplierManagementController::class, 'restore'])->name('suppliers.restore');
+    Route::delete('/suppliers/{supplier}/force', [SupplierManagementController::class, 'forceDelete'])->name('suppliers.force-delete');
+});
+
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])
     ->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Hier würden auch Deine anderen Routen für Artikel, Lagerplätze etc. stehen
     });
-
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
     // Stock Movement Routes
