@@ -42,6 +42,7 @@
                         <td class="px-4 py-3 whitespace-nowrap">
                             <input
                                 type="radio"
+                                name="standard-lieferant"
                                 :checked="Boolean(supplier.pivot.is_default)"
                                 @change="alsStandardSetzen(supplier)"
                                 class="text-indigo-600 focus:ring-indigo-500"
@@ -100,6 +101,12 @@
                         v-model="neuerPreis"
                         class="mt-1 block w-32 rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
+                    <div
+                        v-if="$page.props.errors.price"
+                        class="text-red-500 text-sm mt-1"
+                    >
+                        {{ $page.props.errors.price }}
+                    </div>
                 </div>
                 <button
                     @click="zuordnen"
@@ -121,7 +128,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { router } from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -129,13 +136,32 @@ const props = defineProps({
     availableSuppliers: Array,
 });
 
-const preise = reactive(
-    Object.fromEntries(
-        props.article.suppliers.map((supplier) => [
-            supplier.id,
-            supplier.pivot.price,
-        ])
-    )
+// Inertia behält den Komponentenzustand bei (preserveState), die Seite wird
+// nach store/update/destroy also nicht neu gemountet. `preise` muss deshalb
+// dem Props-Array aktiv nachgeführt werden: neu zugeordnete Lieferanten
+// ergänzen, entfernte löschen. Bestehende Einträge werden dabei nicht
+// überschrieben, damit eine gerade eingetippte, noch ungespeicherte Änderung
+// nicht durch einen Server-Roundtrip einer anderen Zeile verloren geht.
+const preise = reactive({});
+
+watch(
+    () => props.article.suppliers,
+    (suppliers) => {
+        const aktuelleIds = suppliers.map((supplier) => supplier.id);
+
+        suppliers.forEach((supplier) => {
+            if (!(supplier.id in preise)) {
+                preise[supplier.id] = supplier.pivot.price;
+            }
+        });
+
+        Object.keys(preise).forEach((id) => {
+            if (!aktuelleIds.includes(Number(id))) {
+                delete preise[id];
+            }
+        });
+    },
+    { immediate: true, deep: true }
 );
 
 const neuerLieferantId = ref("");
