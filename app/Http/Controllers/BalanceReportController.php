@@ -76,7 +76,7 @@ class BalanceReportController extends Controller
 
             $writer->addRow(Row::fromValuesWithStyle(['Bestandsbilanz'], $fett));
             $writer->addRow(Row::fromValues([sprintf(
-                'Zeitraum: %s - %s',
+                'Zeitraum: %s – %s',
                 $bericht['from']->format('d.m.Y'),
                 $bericht['to']->format('d.m.Y')
             )]));
@@ -87,6 +87,10 @@ class BalanceReportController extends Controller
                 ['Artikelnummer', 'Bezeichnung', 'Lieferant', 'Menge', 'Stückpreis', 'Gesamtwert'],
                 $fett
             ));
+
+            if ($bericht['articles'] === []) {
+                $writer->addRow(Row::fromValues(['Im gewählten Zeitraum gibt es keine Bestandsbewegungen']));
+            }
 
             foreach ($bericht['articles'] as $artikel) {
                 foreach ($artikel['rows'] as $index => $zeile) {

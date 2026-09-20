@@ -136,24 +136,70 @@ class BalanceReportExportTest extends TestCase
 
         $ersteSpalte = array_map(fn ($zeile) => (string) ($zeile[0] ?? ''), $zeilen);
         $zweiteSpalte = array_map(fn ($zeile) => (string) ($zeile[1] ?? ''), $zeilen);
+        $dritteSpalte = array_map(fn ($zeile) => (string) ($zeile[2] ?? ''), $zeilen);
 
         $this->assertContains('Bestandsbilanz', $ersteSpalte);
         $this->assertContains('Artikelnummer', $ersteSpalte);
         $this->assertContains('SKU-7', $ersteSpalte);
         $this->assertContains('Ort, Datum', $ersteSpalte);
         $this->assertContains('Gesamtsumme', $zweiteSpalte);
+        $this->assertContains('Unterschrift', $dritteSpalte);
 
         $datenzeile = collect($zeilen)->first(fn ($zeile) => ($zeile[0] ?? null) === 'SKU-7');
 
         $this->assertSame('Mutter', $datenzeile[1]);
         $this->assertSame('Mueller', $datenzeile[2]);
-        $this->assertEquals(10, $datenzeile[3]);
-        $this->assertEquals(2.0, $datenzeile[4]);
-        $this->assertEquals(20.0, $datenzeile[5]);
+        // OpenSpout liest ganzzahlige Werte beim Zurücklesen als int zurück
+        // (verifiziert: quantity 10 und unit_price 2.00 kommen als int(10)/int(2) zurück) —
+        // assertSame prüft damit zugleich den Typ (numerisch, nicht als String formatiert).
+        $this->assertSame(10, $datenzeile[3]);
+        $this->assertSame(2, $datenzeile[4]);
+        $this->assertSame(20, $datenzeile[5]);
 
         $summenzeile = collect($zeilen)->first(fn ($zeile) => ($zeile[1] ?? null) === 'Gesamtsumme');
 
-        $this->assertEquals(20.0, $summenzeile[5]);
+        $this->assertSame(20, $summenzeile[5]);
+    }
+
+    public function test_pdf_view_ohne_bewegungen_zeigt_leerhinweis(): void
+    {
+        $bericht = app(BalanceReportService::class)->build(
+            Carbon::parse('2026-01-01'),
+            Carbon::parse('2026-01-31')
+        );
+
+        $html = view('reports.balance', $bericht)->render();
+
+        $this->assertStringContainsString('Im gew&auml;hlten Zeitraum gibt es keine Bestandsbewegungen', $html);
+    }
+
+    public function test_xlsx_ohne_bewegungen_zeigt_leerhinweis(): void
+    {
+        $response = $this->get(route('reports.balance.export', [
+            'from' => '2026-01-01',
+            'to' => '2026-01-31',
+            'format' => 'xlsx',
+        ]));
+
+        $pfad = tempnam(sys_get_temp_dir(), 'bilanz').'.xlsx';
+        file_put_contents($pfad, $response->streamedContent());
+
+        $zeilen = [];
+        $reader = new Reader;
+        $reader->open($pfad);
+
+        foreach ($reader->getSheetIterator() as $sheet) {
+            foreach ($sheet->getRowIterator() as $row) {
+                $zeilen[] = $row->toArray();
+            }
+        }
+
+        $reader->close();
+        unlink($pfad);
+
+        $ersteSpalte = array_map(fn ($zeile) => (string) ($zeile[0] ?? ''), $zeilen);
+
+        $this->assertContains('Im gewählten Zeitraum gibt es keine Bestandsbewegungen', $ersteSpalte);
     }
 
     protected function bewegungAnlegen(): void
