@@ -1,3 +1,99 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Projekt
+
+"goods" ist eine Lagerverwaltung (Warehouse Management) als Laravel-Monolith mit Inertia.js v2 + Vue 3 SPA-Frontend. Die gesamte Domäne, UI-Texte, Flash-Messages und Code-Kommentare sind auf Deutsch — neue Strings und Kommentare ebenfalls auf Deutsch schreiben.
+
+## Befehle
+
+```bash
+composer run dev          # Alles parallel: artisan serve + queue:listen + pail (Logs) + vite
+npm run dev               # nur Vite Dev-Server
+npm run build             # Production-Build (bei "Unable to locate file in Vite manifest")
+
+php artisan test --compact                                   # gesamte Suite
+php artisan test --compact tests/Feature/AuthenticationTest.php
+php artisan test --compact --filter=testName                 # einzelner Test
+
+vendor/bin/pint --dirty --format agent   # Pflicht nach jeder PHP-Änderung
+```
+
+Es gibt kein JS-Linting/Formatting-Setup — Vue-Dateien am Stil der Nachbardateien orientieren.
+
+## Datenmodell
+
+Die Lagerstruktur ist eine strikte 4-stufige Kette, jede Ebene `belongsTo` der darüberliegenden mit `onDelete('cascade')`:
+
+```
+Warehouse → Rack → Shelf → StorageLocation
+```
+
+Quer dazu:
+
+- `Article` — Stammdaten (`sku` und `barcode` unique, `minimum_stock` für Unterbestand-Warnungen).
+- `Stock` — Pivot zwischen `Article` und `StorageLocation` mit `quantity`; unique auf `(article_id, storage_location_id)`. Kein Soft-Delete.
+- `StockMovement` — unveränderliches Bewegungsjournal (`type`: `in`/`out`/`transfer`/`correction`, `from_storage_location_id`/`to_storage_location_id`, `user_id`). Kein Soft-Delete.
+
+Wichtig: Der Bestand wird **redundant** geführt — `stocks.quantity` ist der aktuelle Stand, `stock_movements` die Historie. Jede Bestandsänderung muss beides schreiben, in einer `DB::transaction()` (Vorbild: `StockMovementController::update()`). `Article::getTotalQuantityAttribute()` ist ein `$appends`-Accessor, der pro Zugriff eine eigene Query absetzt — bei Listen vorher `withSum('stocks', 'quantity')` nutzen.
+
+Das gesamte Schema liegt in einer einzigen Migration: `database/migrations/2024_12_08_145642_create_datastructure.php`.
+
+## Controller-Konventionen
+
+Alle Management-Controller (`WarehouseManagementController`, `RackManagementController`, `ShelfManagementController`, `StorageLocationManagementController`, `ArticleManagementController`) folgen demselben Muster:
+
+- `index`/`create`/`edit` geben `Inertia::render('<Ordner>/<Komponente>', [...])` zurück.
+- Schreibende Actions validieren inline per `$request->validate([...])` (keine Form Requests) und antworten mit `redirect()->route(...)->with('message', '<deutscher Text>')`.
+- Soft-Delete-Workflow: `destroy` (soft), `trashed` (Papierkorb-Seite), `restore`, `forceDelete` — für Warehouse, Rack, Shelf, StorageLocation und Article jeweils vorhanden.
+- Es gibt keine Policies/Gates; Autorisierung erfolgt allein über die Route-Middleware.
+
+`StorageLocationManagementController::generateQrCode()` rendert per `endroid/qr-code` ein PNG mit der reinen Lagerplatz-ID als Inhalt und liefert es als Download aus. Gegenstück im Frontend ist `Components/QrScanner.vue` (html5-qrcode), genutzt in `Pages/StockMovement/Index.vue`.
+
+## Routing
+
+`routes/web.php` besteht aus mehreren Gruppen, die alle dieselbe Middleware-Kette verwenden:
+
+```php
+['auth:sanctum', config('jetstream.auth_session'), 'verified']
+```
+
+Öffentlich sind nur `/` (Welcome), `/impressum` und `/privacy`. `routes/api.php` enthält nur den Sanctum-`/user`-Endpunkt; die "API" für das Frontend liegt unter `/stock/api/*` in der Web-Gruppe und antwortet mit `response()->json()`.
+
+Zwei bekannte Defekte in `routes/web.php`, die beim Arbeiten dort auffallen: `Route::get('/articles/trashed', ...)` steht **hinter** `Route::get('/articles/{article}', ...)` und ist dadurch nicht erreichbar; und die Route `storage-locations.get` hat einen Tippfehler im Pfad (`/stouri: rage-locations/...`). Statische Segmente grundsätzlich vor parametrisierte Routen setzen.
+
+Im Frontend werden URLs über Ziggy erzeugt (`route('warehouses.index')`, global via `ZiggyVue` in `resources/js/app.js`).
+
+## Frontend-Struktur
+
+- `resources/js/Layouts/AppLayout.vue` — eingeloggter Bereich; `WebLayout.vue` — öffentliche Seiten (Welcome, Impressum, PrivacyPolicy).
+- `resources/js/Pages/**` — Inertia-Seiten, aufgelöst über `import.meta.glob`. Ordnerstruktur spiegelt die Domäne (`Warehouses/`, `Articles/`, `StockMovement/`, …).
+- Upsert-Pattern: Anlegen und Bearbeiten teilen sich eine Komponente (`UpsertWarehouse.vue`, `UpsertRack.vue`, `UpsertShelf.vue`, `UpsertStorageLocation.vue`, `UpsertArticle.vue`) — Edit-Modus wird am übergebenen Model-Prop erkannt.
+- `Pages/Warehouses/Index.vue` ist die zentrale Verwaltungsseite und bekommt Warehouses, Racks, Shelves und Locations in **einem** Render geliefert; die Tabellen liegen in `Pages/Warehouses/Components/`.
+- Charts: ApexCharts (`vue3-apexcharts`, global registriert), verwendet im Dashboard.
+- Jetstream-Standardkomponenten liegen unverändert in `resources/js/Components/` — vor dem Bauen neuer UI-Bausteine dort nachsehen.
+
+## Authentifizierung
+
+Jetstream (Inertia-Stack) + Fortify. Beachten, was in der Config **abgeschaltet** ist:
+
+- `config/fortify.php`: `registration()` und `emailVerification()` sind auskommentiert — es gibt also keine Registrierungs-Route, obwohl `Welcome.vue` `canRegister` auswertet.
+- Da `emailVerification` deaktiviert ist, aber alle App-Routen `verified` verlangen, brauchen Benutzer trotzdem ein gesetztes `email_verified_at`; neue Test- und Seed-Benutzer entsprechend anlegen.
+- `config/jetstream.php`: nur `profilePhotos()` aktiv — keine Teams, keine API-Tokens, kein Account-Deletion. Mehrere Tests in `tests/Feature/` (ApiToken*, DeleteAccount) laufen deshalb übersprungen bzw. gegen deaktivierte Features.
+
+## Tests
+
+`tests/Feature/` enthält ausschließlich die Jetstream-Standardtests. Für die eigentliche Domäne (Warehouse/Rack/Shelf/StorageLocation/Article/Stock/StockMovement) existieren weder Tests noch Factories — `database/factories/` hat nur `UserFactory`. Beim Testen von Domänenlogik zuerst die fehlenden Factories anlegen (`php artisan make:factory --no-interaction`).
+
+Achtung: In `phpunit.xml` sind `DB_CONNECTION=sqlite` und `DB_DATABASE=:memory:` **auskommentiert**. Tests laufen damit gegen die Datenbank aus `.env`. Testfälle immer mit `RefreshDatabase` schreiben und im Zweifel vorher klären, ob die beiden Zeilen aktiviert werden sollen.
+
+## Hinweis zu den Boost-Guidelines unten
+
+Der folgende Block wird von `php artisan boost:install` generiert und ist teilweise veraltet. Tatsächlich installiert sind: **Laravel 13.4** (nicht 11), **PHPUnit 12** (nicht 11), **Jetstream 5.5 + Fortify 1.36**, PHP 8.5, Inertia Laravel 2.0 / `@inertiajs/vue3` 1.x, Tailwind 3, Vue 3. Bei Widersprüchen gelten `composer.json`/`composer.lock`. Der MCP-Server `laravel-boost` ist in `.mcp.json` konfiguriert, war zuletzt aber nicht erreichbar — dann auf `php artisan`-Befehle direkt ausweichen.
+
+---
+
 <laravel-boost-guidelines>
 === foundation rules ===
 
