@@ -1470,7 +1470,7 @@ class ArticleSupplierPriceTest extends TestCase
         ]);
     }
 
-    public function test_reines_preis_update_laesst_die_standardmarkierung_unberuehrt(): void
+    public function test_preisaenderung_ohne_is_default_laesst_standard_unveraendert(): void
     {
         $article = Article::factory()->create();
         $supplier = Supplier::factory()->create();
