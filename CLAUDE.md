@@ -40,6 +40,8 @@ Wichtig: Der Bestand wird **redundant** geführt — `stocks.quantity` ist der a
 
 Das gesamte Schema liegt in einer einzigen Migration: `database/migrations/2024_12_08_145642_create_datastructure.php`.
 
+`Supplier` (Soft-Delete) hängt quer an `Article` über die Pivot-Tabelle `article_supplier` (`price`, `is_default`) — pro Artikel genau ein Standard-Lieferant, erzwungen in `ArticleSupplierController`, da MySQL keine partiellen Unique-Indizes kennt. `StockMovement` trägt zusätzlich `supplier_id` (nullable, nur bei `in`/`out` gesetzt; `correction` bleibt ohne Lieferant). `BalanceReportService::build()` liest daraus die Bestandsbilanz für einen Zeitraum: gruppiert nach Artikel, Lieferant und Stückpreis, mit Zwischensummen je Artikel und einer Gesamtsumme.
+
 ## Controller-Konventionen
 
 Alle Management-Controller (`WarehouseManagementController`, `RackManagementController`, `ShelfManagementController`, `StorageLocationManagementController`, `ArticleManagementController`) folgen demselben Muster:
@@ -50,6 +52,8 @@ Alle Management-Controller (`WarehouseManagementController`, `RackManagementCont
 - Es gibt keine Policies/Gates; Autorisierung erfolgt allein über die Route-Middleware.
 
 `StorageLocationManagementController::generateQrCode()` rendert per `endroid/qr-code` ein PNG mit der reinen Lagerplatz-ID als Inhalt und liefert es als Download aus. Gegenstück im Frontend ist `Components/QrScanner.vue` (html5-qrcode), genutzt in `Pages/StockMovement/Index.vue`.
+
+`BalanceReportController` weicht vom Management-Muster ab: `index()` rendert die Bilanzseite (`Inertia::render('Reports/Balance', [...])`), `export()` validiert Zeitraum und `format` (`in:pdf,xlsx`) und delegiert an die privaten Helfer `alsPdf()` (Dompdf, Blade-View `reports.balance`) bzw. `alsXlsx()` (OpenSpout 5, `response()->streamDownload()`). Beide Formate liefern dieselben sechs Spalten, Artikel-Zwischensummen, Gesamtsumme und denselben Unterschriftenblock — ein Ausdruck aus Excel soll wie das PDF aussehen. `SupplierManagementController` und `ArticleSupplierController` (Zuordnung Artikel↔Lieferant mit Stückpreis) folgen dagegen dem üblichen Management-Muster.
 
 ## Routing
 

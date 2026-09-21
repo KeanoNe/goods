@@ -205,6 +205,12 @@
                     </div>
                 </div>
 
+                <!-- Lieferanten und Preise -->
+                <SupplierPriceTable
+                    :article="article"
+                    :available-suppliers="availableSuppliers"
+                />
+
                 <!-- Diagramm mit Nettobestandsänderungen -->
                 <div class="bg-white shadow-sm sm:rounded-lg p-4 mb-6">
                     <h3
@@ -529,6 +535,7 @@ import { ref } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Modal from "@/Components/Modal.vue";
 import Pagination from "@/Components/Pagination.vue";
+import SupplierPriceTable from "@/Pages/Articles/Components/SupplierPriceTable.vue";
 import "apexcharts/bar";
 import "apexcharts/line";
 import VueApexCharts from "vue3-apexcharts/core";
@@ -537,6 +544,7 @@ const props = defineProps({
     article: Object,
     stockMovements: Object,
     availableStorageLocations: Array,
+    availableSuppliers: Array,
     dailyChanges: Array,
     cumulativeStockData: Array,
 });

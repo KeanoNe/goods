@@ -32,6 +32,13 @@ class Article extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+    public function suppliers()
+    {
+        return $this->belongsToMany(Supplier::class)
+            ->withPivot(['price', 'is_default'])
+            ->withTimestamps();
+    }
+
     public function getTotalQuantityAttribute()
     {
         return $this->stocks()->sum('quantity');

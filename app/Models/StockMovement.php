@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Model;
 
 class StockMovement extends Model
 {
@@ -12,17 +11,24 @@ class StockMovement extends Model
 
     protected $fillable = [
         'article_id',
+        'supplier_id',
         'from_storage_location_id',
         'to_storage_location_id',
         'quantity',
+        'unit_price',
         'type', // 'in', 'out', 'transfer', 'correction'
         'notes',
-        'user_id'
+        'user_id',
     ];
 
     public function article()
     {
         return $this->belongsTo(Article::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     public function fromStorageLocation()
