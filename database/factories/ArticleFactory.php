@@ -11,15 +11,17 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class ArticleFactory extends Factory
 {
     /**
+     * Definiert den Standardzustand des Modells.
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'name' => 'Artikel '.fake()->unique()->numerify('####'),
+            'name' => fake()->words(3, true),
             'description' => fake()->sentence(),
-            'sku' => fake()->unique()->numerify('SKU-#####'),
-            'minimum_stock' => 0,
+            'sku' => fake()->unique()->bothify('SKU-####??'),
+            'minimum_stock' => fake()->numberBetween(0, 20),
             'barcode' => fake()->unique()->ean13(),
             'notes' => null,
         ];

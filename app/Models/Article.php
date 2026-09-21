@@ -19,7 +19,6 @@ class Article extends Model
         'sku',
         'minimum_stock',
         'barcode',
-        'qr_code',
         'notes',
     ];
 

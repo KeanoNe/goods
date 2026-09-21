@@ -34,7 +34,6 @@ class ArticleManagementController extends Controller
             'sku' => 'required|string|max:255|unique:articles',
             'minimum_stock' => 'required|integer|min:0',
             'barcode' => 'nullable|string|unique:articles',
-            'qr_code' => 'nullable|string|unique:articles',
             'notes' => 'nullable|string',
         ]);
 
@@ -59,7 +58,6 @@ class ArticleManagementController extends Controller
             'sku' => 'required|string|max:255|unique:articles,sku,'.$article->id,
             'minimum_stock' => 'required|integer|min:0',
             'barcode' => 'nullable|string|unique:articles,barcode,'.$article->id,
-            'qr_code' => 'nullable|string|unique:articles,qr_code,'.$article->id,
             'notes' => 'nullable|string',
         ]);
 
