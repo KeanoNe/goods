@@ -131,6 +131,13 @@ class StockMovementController extends Controller
                     ['quantity' => 0]
                 );
 
+                // Dieselbe Zeile gesperrt neu laden. firstOrCreate kann das
+                // nicht, deshalb zweistufig. Ohne die Sperre lesen zwei
+                // gleichzeitige Buchungen denselben Ausgangswert und
+                // überschreiben sich gegenseitig: das Journal verbucht beide,
+                // der Bestand bewegt sich nur einmal.
+                $stock = Stock::whereKey($stock->getKey())->lockForUpdate()->first();
+
                 // Prüfe ob genug Bestand für Entnahme vorhanden ist
                 if ($validated['type'] === 'remove' && $stock->quantity < $validated['quantity']) {
                     throw ValidationException::withMessages([
