@@ -57,84 +57,86 @@
                         {{ $page.props.errors.to }}
                     </div>
 
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Artikelnummer
-                                </th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Bezeichnung
-                                </th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Lieferant
-                                </th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Menge
-                                </th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Stückpreis
-                                </th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Gesamtwert
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <template
-                                v-for="artikel in articles"
-                                :key="artikel.article_id"
-                            >
-                                <tr
-                                    v-for="(zeile, index) in artikel.rows"
-                                    :key="artikel.article_id + '-' + index"
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Artikelnummer
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Bezeichnung
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Lieferant
+                                    </th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Menge
+                                    </th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Stückpreis
+                                    </th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Gesamtwert
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <template
+                                    v-for="artikel in articles"
+                                    :key="artikel.article_id"
                                 >
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        {{ index === 0 ? artikel.sku : "" }}
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        {{ index === 0 ? artikel.name : "" }}
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        {{ zeile.supplier }}
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-right">
-                                        {{ zeile.quantity }}
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-right">
-                                        {{ waehrung(zeile.unit_price) }}
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-right">
-                                        {{ waehrung(zeile.total) }}
+                                    <tr
+                                        v-for="(zeile, index) in artikel.rows"
+                                        :key="artikel.article_id + '-' + index"
+                                    >
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            {{ index === 0 ? artikel.sku : "" }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            {{ index === 0 ? artikel.name : "" }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            {{ zeile.supplier }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-right">
+                                            {{ zeile.quantity }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-right">
+                                            {{ waehrung(zeile.unit_price) }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-right">
+                                            {{ waehrung(zeile.total) }}
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-gray-50 font-medium">
+                                        <td colspan="5" class="px-4 py-2 text-right">
+                                            Zwischensumme {{ artikel.name }}
+                                        </td>
+                                        <td class="px-4 py-2 text-right">
+                                            {{ waehrung(artikel.subtotal) }}
+                                        </td>
+                                    </tr>
+                                </template>
+                                <tr v-if="articles.length === 0">
+                                    <td colspan="6" class="px-4 py-4 text-center text-gray-500">
+                                        Im gewählten Zeitraum gibt es keine
+                                        Bestandsbewegungen
                                     </td>
                                 </tr>
-                                <tr class="bg-gray-50 font-medium">
-                                    <td colspan="5" class="px-4 py-2 text-right">
-                                        Zwischensumme {{ artikel.name }}
+                            </tbody>
+                            <tfoot>
+                                <tr class="border-t-2 border-gray-300 font-semibold">
+                                    <td colspan="5" class="px-4 py-3 text-right">
+                                        Gesamtsumme
                                     </td>
-                                    <td class="px-4 py-2 text-right">
-                                        {{ waehrung(artikel.subtotal) }}
+                                    <td class="px-4 py-3 text-right">
+                                        {{ waehrung(grandTotal) }}
                                     </td>
                                 </tr>
-                            </template>
-                            <tr v-if="articles.length === 0">
-                                <td colspan="6" class="px-4 py-4 text-center text-gray-500">
-                                    Im gewählten Zeitraum gibt es keine
-                                    Bestandsbewegungen
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr class="border-t-2 border-gray-300 font-semibold">
-                                <td colspan="5" class="px-4 py-3 text-right">
-                                    Gesamtsumme
-                                </td>
-                                <td class="px-4 py-3 text-right">
-                                    {{ waehrung(grandTotal) }}
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

@@ -7,69 +7,71 @@
         </div>
 
         <div class="px-4 pb-5 sm:px-6">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead>
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Lieferant
-                        </th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Stückpreis
-                        </th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Standard
-                        </th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Aktionen
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="supplier in article.suppliers" :key="supplier.id">
-                        <td class="px-4 py-3 whitespace-nowrap">
-                            {{ supplier.name }}
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap">
-                            <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                :value="preise[supplier.id]"
-                                @input="preise[supplier.id] = $event.target.value"
-                                class="w-32 rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            />
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap">
-                            <input
-                                type="radio"
-                                name="standard-lieferant"
-                                :checked="Boolean(supplier.pivot.is_default)"
-                                @change="alsStandardSetzen(supplier)"
-                                class="text-indigo-600 focus:ring-indigo-500"
-                            />
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap">
-                            <button
-                                @click="preisSpeichern(supplier)"
-                                class="text-indigo-600 hover:text-indigo-900 mr-3"
-                            >
-                                Preis speichern
-                            </button>
-                            <button
-                                @click="zuordnungEntfernen(supplier)"
-                                class="text-red-600 hover:text-red-900"
-                            >
-                                Entfernen
-                            </button>
-                        </td>
-                    </tr>
-                    <tr v-if="article.suppliers.length === 0">
-                        <td colspan="4" class="px-4 py-3 text-center text-gray-500">
-                            Diesem Artikel ist noch kein Lieferant zugeordnet
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Lieferant
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Stückpreis
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Standard
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Aktionen
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr v-for="supplier in article.suppliers" :key="supplier.id">
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                {{ supplier.name }}
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    :value="preise[supplier.id]"
+                                    @input="preise[supplier.id] = $event.target.value"
+                                    class="w-32 rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <input
+                                    type="radio"
+                                    name="standard-lieferant"
+                                    :checked="Boolean(supplier.pivot.is_default)"
+                                    @change="alsStandardSetzen(supplier)"
+                                    class="text-indigo-600 focus:ring-indigo-500"
+                                />
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <button
+                                    @click="preisSpeichern(supplier)"
+                                    class="text-indigo-600 hover:text-indigo-900 mr-3"
+                                >
+                                    Preis speichern
+                                </button>
+                                <button
+                                    @click="zuordnungEntfernen(supplier)"
+                                    class="text-red-600 hover:text-red-900"
+                                >
+                                    Entfernen
+                                </button>
+                            </td>
+                        </tr>
+                        <tr v-if="article.suppliers.length === 0">
+                            <td colspan="4" class="px-4 py-3 text-center text-gray-500">
+                                Diesem Artikel ist noch kein Lieferant zugeordnet
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <div class="mt-4 flex items-end space-x-3">
                 <div>

@@ -24,68 +24,70 @@
                         </Link>
                     </div>
 
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Name
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Ansprechpartner
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    E-Mail
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Kundennummer
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Artikel
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Aktionen
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="supplier in suppliers" :key="supplier.id">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ supplier.name }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ supplier.contact_person || "-" }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ supplier.email || "-" }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ supplier.customer_number || "-" }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ supplier.articles_count }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <Link
-                                        :href="route('suppliers.edit', supplier.id)"
-                                        class="text-indigo-600 hover:text-indigo-900 mr-2"
-                                    >
-                                        Bearbeiten
-                                    </Link>
-                                    <button
-                                        @click="openDeleteDialog(supplier)"
-                                        class="text-red-600 hover:text-red-900"
-                                    >
-                                        Löschen
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr v-if="suppliers.length === 0">
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                    Keine Lieferanten vorhanden
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Name
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ansprechpartner
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        E-Mail
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Kundennummer
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Artikel
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Aktionen
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr v-for="supplier in suppliers" :key="supplier.id">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ supplier.name }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ supplier.contact_person || "-" }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ supplier.email || "-" }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ supplier.customer_number || "-" }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ supplier.articles_count }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <Link
+                                            :href="route('suppliers.edit', supplier.id)"
+                                            class="text-indigo-600 hover:text-indigo-900 mr-2"
+                                        >
+                                            Bearbeiten
+                                        </Link>
+                                        <button
+                                            @click="openDeleteDialog(supplier)"
+                                            class="text-red-600 hover:text-red-900"
+                                        >
+                                            Löschen
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr v-if="suppliers.length === 0">
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                        Keine Lieferanten vorhanden
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <Modal :show="showDeleteDialog" @close="closeDeleteDialog">
                         <div class="p-6">
