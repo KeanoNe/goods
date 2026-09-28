@@ -34,10 +34,10 @@ class StorageLocationQrCodeTest extends TestCase
 
         // Bewusst eine feste id statt der von der Factory vergebenen: Der
         // Zxing-Decoder scheitert bei einigen wenigen ids (u. a. 8, 74, 92)
-        // am erzeugten QR-Code, unabhaengig vom Endpunkt. Welche id die
-        // Factory vergibt, haengt vom Auto-Increment ab und schwankt mit
+        // am erzeugten QR-Code, unabhängig vom Endpunkt. Welche id die
+        // Factory vergibt, hängt vom Auto-Increment ab und schwankt mit
         // jedem neuen Test in der Suite. id 1 decodiert nachweislich
-        // zuverlaessig — nicht durch eine Factory-id ersetzen.
+        // zuverlässig — nicht durch eine Factory-id ersetzen.
         $storageLocation = StorageLocation::factory()->create(['id' => 1]);
 
         $response = $this->get(route('storage-locations.qr-code', $storageLocation));
