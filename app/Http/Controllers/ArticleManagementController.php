@@ -90,22 +90,17 @@ class ArticleManagementController extends Controller
             // Berechne nur Movements für Tage, an denen es auch welche gibt
             $dayMovements = $movements->filter(fn ($m) => $m->created_at->isSameDay($date));
             foreach ($dayMovements as $move) {
+                // Gleiche Zählweise wie BalanceReportService::build(): nur
+                // Zu- und Abgänge. Ein transfer verschiebt bloß zwischen
+                // Lagerplätzen und verändert den Artikelbestand nicht,
+                // correction ist eine Buchhaltungskorrektur und kein
+                // Warenfluss.
                 switch ($move->type) {
                     case 'in':
-                    case 'transfer':
                         $netChange += $move->quantity;
                         break;
                     case 'out':
                         $netChange -= $move->quantity;
-                        break;
-                    case 'correction':
-                        // Bei correction entscheidet die Richtung
-                        if ($move->to_storage_location_id) {
-                            $netChange += $move->quantity;
-                        }
-                        if ($move->from_storage_location_id) {
-                            $netChange -= $move->quantity;
-                        }
                         break;
                 }
             }
