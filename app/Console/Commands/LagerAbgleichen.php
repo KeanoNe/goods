@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Article;
 use App\Models\StockMovement;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -59,6 +60,15 @@ class LagerAbgleichen extends Command
             return self::SUCCESS;
         }
 
+        if (! User::whereKey(self::URHEBER_ID)->exists()) {
+            $this->error(sprintf(
+                'Urheber-Benutzer mit ID %d existiert nicht. Es wurde nichts geschrieben.',
+                self::URHEBER_ID
+            ));
+
+            return self::FAILURE;
+        }
+
         foreach ($zuBuchen as $eintrag) {
             DB::transaction(function () use ($eintrag) {
                 StockMovement::create([
@@ -95,12 +105,20 @@ class LagerAbgleichen extends Command
 
     /**
      * Lagerplatz für die Korrekturbuchung: aus der jüngsten Bewegung des
-     * Artikels, ersatzweise aus seinem ersten Bestandseintrag.
+     * Artikels, die einen Lagerplatz trägt, ersatzweise aus einem
+     * Bestandseintrag.
+     *
+     * Historische Korrekturbuchungen (vor diesem Branch) konnten mit
+     * Menge 0 und beiden Lagerplatz-Spalten null entstehen. Solche
+     * Bewegungen werden übersprungen, damit ältere, brauchbare
+     * Bewegungen nicht durch sie verdeckt werden.
      */
     private function lagerplatzFuer(int $artikelId): ?int
     {
         $juengste = DB::table('stock_movements')
             ->where('article_id', $artikelId)
+            ->where(fn ($query) => $query->whereNotNull('to_storage_location_id')
+                ->orWhereNotNull('from_storage_location_id'))
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->first(['from_storage_location_id', 'to_storage_location_id']);

@@ -99,6 +99,67 @@ class LagerAbgleichKommandoTest extends TestCase
         $this->assertDatabaseCount('stock_movements', 1);
     }
 
+    public function test_aeltere_bewegung_mit_lagerplatz_wird_trotz_leerer_juengster_korrektur_gefunden(): void
+    {
+        // Der Artikel hat keine stocks-Zeile mehr (z. B. bereits entfernt),
+        // eine ältere "in"-Bewegung trägt aber einen Lagerplatz. Die
+        // jüngste Bewegung ist eine historische Korrektur mit Menge 0 und
+        // beiden Lagerplatz-Spalten null, wie sie vor diesem Branch beim
+        // Buchen einer unveränderten Menge entstehen konnte.
+        $article = Article::factory()->create();
+        $location = StorageLocation::factory()->create();
+
+        StockMovement::factory()->create([
+            'article_id' => $article->id,
+            'from_storage_location_id' => null,
+            'to_storage_location_id' => $location->id,
+            'quantity' => 50,
+            'type' => 'in',
+        ]);
+
+        StockMovement::factory()->create([
+            'article_id' => $article->id,
+            'from_storage_location_id' => null,
+            'to_storage_location_id' => null,
+            'quantity' => 0,
+            'type' => 'correction',
+        ]);
+
+        $this->artisan('lager:abgleichen --schreiben')->assertSuccessful();
+
+        $this->assertDatabaseHas('stock_movements', [
+            'article_id' => $article->id,
+            'type' => 'correction',
+            'from_storage_location_id' => $location->id,
+            'to_storage_location_id' => null,
+            'quantity' => 50,
+            'user_id' => 1,
+        ]);
+        $this->assertSame(0, $this->journalstand($article->id));
+    }
+
+    public function test_artikel_ohne_ermittelbaren_lagerplatz_wird_uebersprungen(): void
+    {
+        // Weder eine Bewegung mit Lagerplatz noch eine stocks-Zeile
+        // existiert für diesen Artikel — die Abweichung ist nicht
+        // abgleichbar und darf keine Buchung erzeugen.
+        $article = Article::factory()->create();
+
+        StockMovement::factory()->create([
+            'article_id' => $article->id,
+            'from_storage_location_id' => null,
+            'to_storage_location_id' => null,
+            'quantity' => 30,
+            'type' => 'in',
+        ]);
+
+        $this->artisan('lager:abgleichen --schreiben')
+            ->assertSuccessful()
+            ->expectsOutputToContain((string) $article->id);
+
+        $this->assertDatabaseCount('stock_movements', 1);
+    }
+
     /**
      * Legt einen Artikel an, dessen Bestand und Journalstand auseinanderlaufen.
      *

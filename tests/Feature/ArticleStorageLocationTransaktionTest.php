@@ -79,6 +79,48 @@ class ArticleStorageLocationTransaktionTest extends TestCase
         ]);
     }
 
+    public function test_die_bestandszeile_wird_beim_entfernen_gesperrt(): void
+    {
+        [$article, $location] = $this->zuordnungMitBestand(40);
+
+        $abfragen = [];
+        DB::listen(function ($abfrage) use (&$abfragen) {
+            $abfragen[] = strtolower($abfrage->sql);
+        });
+
+        $this->delete(route('articles.storage-locations.destroy', [$article, $location]))
+            ->assertRedirect(route('articles.show', $article->id));
+
+        $sperren = array_filter($abfragen, fn (string $sql) => str_contains($sql, 'from `stocks`') && str_contains($sql, 'for update'));
+
+        $this->assertNotEmpty($sperren, 'Die stocks-Zeile wurde beim Entfernen ohne "for update" gelesen.');
+    }
+
+    public function test_zweites_entfernen_bucht_nicht_erneut_aus(): void
+    {
+        // Simuliert den Kern des Bugs: zwei Entfernungen derselben
+        // Zuordnung. Ohne Sperre lasen beide dieselbe Menge und buchten
+        // beide eine Ausbuchung; die zweite Löschung war ein stiller
+        // No-Op auf einer bereits gelöschten Zeile. Mit der Sperre findet
+        // die zweite Anfrage die Zeile bereits gelöscht vor und bucht
+        // nichts.
+        [$article, $location] = $this->zuordnungMitBestand(40);
+
+        $this->delete(route('articles.storage-locations.destroy', [$article, $location]))
+            ->assertRedirect(route('articles.show', $article->id));
+
+        $this->delete(route('articles.storage-locations.destroy', [$article, $location]))
+            ->assertNotFound();
+
+        $this->assertDatabaseCount('stock_movements', 2);
+        $this->assertDatabaseHas('stock_movements', [
+            'article_id' => $article->id,
+            'type' => 'out',
+            'quantity' => 40,
+        ]);
+        $this->assertSame(0, $this->journalstand($article->id));
+    }
+
     public function test_scheitert_das_loeschen_wird_auch_die_ausbuchung_zurueckgerollt(): void
     {
         [$article, $location] = $this->zuordnungMitBestand(40);

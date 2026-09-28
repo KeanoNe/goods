@@ -72,15 +72,21 @@ class ArticleStorageLocationController extends Controller
      */
     public function destroy(Article $article, StorageLocation $storageLocation)
     {
-        $stock = Stock::where('article_id', $article->id)
-            ->where('storage_location_id', $storageLocation->id)
-            ->first();
+        DB::transaction(function () use ($article, $storageLocation) {
+            // Bestandszeile erst innerhalb der Transaktion und gesperrt laden.
+            // Ohne die Sperre können zwei gleichzeitige Entfernungen dieselbe
+            // Menge lesen, beide dieselbe Ausbuchung journalisieren und die
+            // zweite Löschung liefe als stiller No-Op auf einer bereits
+            // gelöschten Zeile — Journal und Bestand liefen auseinander.
+            $stock = Stock::where('article_id', $article->id)
+                ->where('storage_location_id', $storageLocation->id)
+                ->lockForUpdate()
+                ->first();
 
-        if (! $stock) {
-            throw new ModelNotFoundException('Die Zuordnung konnte nicht gefunden werden.');
-        }
+            if (! $stock) {
+                throw new ModelNotFoundException('Die Zuordnung konnte nicht gefunden werden.');
+            }
 
-        DB::transaction(function () use ($article, $storageLocation, $stock) {
             if ($stock->quantity > 0) {
                 StockMovement::create([
                     'article_id' => $article->id,
@@ -106,16 +112,22 @@ class ArticleStorageLocationController extends Controller
             'new_quantity' => 'required|integer|min:0',
         ]);
 
-        $stock = Stock::where('article_id', $article->id)
-            ->where('storage_location_id', $storageLocation->id)
-            ->firstOrFail();
-
-        // Alte Menge merken
-        $oldQuantity = $stock->quantity;
         $newQuantity = $validated['new_quantity'];
-        $difference = $newQuantity - $oldQuantity;
 
-        DB::transaction(function () use ($article, $storageLocation, $stock, $newQuantity, $difference, $request) {
+        DB::transaction(function () use ($article, $storageLocation, $newQuantity, $request) {
+            // Bestandszeile erst innerhalb der Transaktion und gesperrt laden,
+            // damit die alte Menge nicht unter einer gleichzeitigen Buchung
+            // veraltet — sonst passt die gebuchte Differenz nicht zur
+            // tatsächlichen Änderung und ein gleichzeitiges Update würde
+            // stillschweigend verworfen.
+            $stock = Stock::where('article_id', $article->id)
+                ->where('storage_location_id', $storageLocation->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $oldQuantity = $stock->quantity;
+            $difference = $newQuantity - $oldQuantity;
+
             $stock->update(['quantity' => $newQuantity]);
 
             // Ohne Mengenänderung gibt es nichts zu buchen. Bisher entstand

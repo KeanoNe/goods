@@ -136,7 +136,7 @@ class StockMovementController extends Controller
                 // gleichzeitige Buchungen denselben Ausgangswert und
                 // überschreiben sich gegenseitig: das Journal verbucht beide,
                 // der Bestand bewegt sich nur einmal.
-                $stock = Stock::whereKey($stock->getKey())->lockForUpdate()->first();
+                $stock = Stock::whereKey($stock->getKey())->lockForUpdate()->firstOrFail();
 
                 // Prüfe ob genug Bestand für Entnahme vorhanden ist
                 if ($validated['type'] === 'remove' && $stock->quantity < $validated['quantity']) {
