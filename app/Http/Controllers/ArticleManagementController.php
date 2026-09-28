@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\StorageLocation;
+use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -147,7 +148,7 @@ class ArticleManagementController extends Controller
         }
 
         return Inertia::render('Articles/Show', [
-            'article' => $article->load(['stocks.storageLocation.shelf.rack.warehouse']),
+            'article' => $article->load(['stocks.storageLocation.shelf.rack.warehouse', 'suppliers']),
             'stockMovements' => $article->stockMovements()
                 ->with([
                     'fromStorageLocation.shelf.rack.warehouse',
@@ -157,6 +158,7 @@ class ArticleManagementController extends Controller
                 ->latest()
                 ->paginate(10),
             'availableStorageLocations' => StorageLocation::with('shelf.rack.warehouse')->get(),
+            'availableSuppliers' => Supplier::orderBy('name')->get(['id', 'name']),
             'dailyChanges' => $dailyChanges,
             'cumulativeStockData' => $cumulativeStockData,
         ]);

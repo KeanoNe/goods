@@ -74,6 +74,22 @@ const logout = () => {
                                 >
                                     Lager
                                 </NavLink>
+                                <NavLink
+                                    :href="route('suppliers.index')"
+                                    :active="
+                                        route().current('suppliers.index')
+                                    "
+                                >
+                                    Lieferanten
+                                </NavLink>
+                                <NavLink
+                                    :href="route('reports.balance.index')"
+                                    :active="
+                                        route().current('reports.balance.index')
+                                    "
+                                >
+                                    Bilanz
+                                </NavLink>
                             </div>
                         </div>
 
@@ -367,13 +383,25 @@ const logout = () => {
                             :href="route('articles.index')"
                             :active="route().current('articles.index')"
                         >
-                            Dashboard
+                            Artikel
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('warehouses.index')"
                             :active="route().current('warehouses.index')"
                         >
                             Lager
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('suppliers.index')"
+                            :active="route().current('suppliers.index')"
+                        >
+                            Lieferanten
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('reports.balance.index')"
+                            :active="route().current('reports.balance.index')"
+                        >
+                            Bilanz
                         </ResponsiveNavLink>
                     </div>
 
