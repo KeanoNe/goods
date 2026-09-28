@@ -46,6 +46,8 @@ Das gesamte Schema liegt in einer einzigen Migration: `database/migrations/2024_
 
 `Supplier` (Soft-Delete) hängt quer an `Article` über die Pivot-Tabelle `article_supplier` (`price`, `is_default`) — pro Artikel genau ein Standard-Lieferant, erzwungen in `ArticleSupplierController`, da MySQL keine partiellen Unique-Indizes kennt. `StockMovement` trägt zusätzlich `supplier_id` (nullable, nur bei `in`/`out` gesetzt; `correction` bleibt ohne Lieferant). `BalanceReportService::build()` liest daraus die Bestandsbilanz für einen Zeitraum: gruppiert nach Artikel, Lieferant und Stückpreis, mit Zwischensummen je Artikel und einer Gesamtsumme.
 
+`BestandswertService::build()` ermittelt zusätzlich den aktuellen Wert des Lagers zum Aufrufzeitpunkt (unabhängig vom gewählten Zeitraum): `stocks` kennt keinen Lieferanten, daher wird die Zuordnung per FIFO-Annahme aus den Eingangsbuchungen (`stock_movements` mit `type = in`) hergeleitet — die jüngsten Zugänge gelten als noch vorhanden. Nicht zuordenbare Restmengen erscheinen als abgesetzte Zeile, bewertet mit dem Preis des Standard-Lieferanten (oder unbewertet, falls keiner hinterlegt ist). Vorschau, PDF und XLSX der Bilanz zeigen diesen Abschnitt zwischen Bewegungstabelle und Unterschriftenblock identisch an.
+
 ## Controller-Konventionen
 
 Alle Management-Controller (`WarehouseManagementController`, `RackManagementController`, `ShelfManagementController`, `StorageLocationManagementController`, `ArticleManagementController`) folgen demselben Muster:

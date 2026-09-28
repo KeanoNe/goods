@@ -54,6 +54,7 @@ class BalanceReportController extends Controller
         $to = Carbon::parse($validated['to'])->endOfDay();
 
         $bericht = $this->balanceReport->build($from, $to);
+        $bericht['bestandswert'] = $this->bestandswert->build();
 
         $dateiname = sprintf(
             'bilanz_%s_bis_%s',
@@ -127,6 +128,59 @@ class BalanceReportController extends Controller
                 ['', 'Gesamtsumme', '', '', '', $bericht['grand_total']],
                 $fett
             ));
+
+            $wert = $bericht['bestandswert'];
+
+            $writer->addRow(Row::fromValues([]));
+            $writer->addRow(Row::fromValuesWithStyle(
+                ['Bestandswert zum '.$wert['stichtag']->format('d.m.Y')],
+                $fett
+            ));
+            $writer->addRow(Row::fromValues(['Momentaufnahme des Lagers, zeitraumunabhängig.']));
+            $writer->addRow(Row::fromValues([]));
+
+            $writer->addRow(Row::fromValuesWithStyle(
+                ['Artikelnummer', 'Bezeichnung', 'Lieferant', 'Menge', 'Stückpreis', 'Wert'],
+                $fett
+            ));
+
+            if ($wert['articles'] === []) {
+                $writer->addRow(Row::fromValues(['Derzeit liegt kein Bestand im Lager']));
+            }
+
+            foreach ($wert['articles'] as $artikel) {
+                foreach ($artikel['rows'] as $index => $zeile) {
+                    $writer->addRow(Row::fromValues([
+                        $index === 0 ? $artikel['sku'] : '',
+                        $index === 0
+                            ? $artikel['name'].($artikel['geloescht'] ? ' (gelöscht)' : '')
+                            : '',
+                        $zeile['supplier'],
+                        $zeile['quantity'],
+                        $zeile['unit_price'],
+                        $zeile['total'],
+                    ]));
+                }
+
+                $writer->addRow(Row::fromValuesWithStyle(
+                    ['', 'Zwischensumme '.$artikel['name'], '', '', '', $artikel['subtotal']],
+                    $fett
+                ));
+            }
+
+            $writer->addRow(Row::fromValuesWithStyle(
+                ['', 'Gesamtwert des Lagers', '', '', '', $wert['grand_total']],
+                $fett
+            ));
+
+            if ($wert['ohne_preis_artikel'] > 0) {
+                $writer->addRow(Row::fromValues(['', sprintf(
+                    'davon ohne hinterlegten Preis: %d von %d Artikeln (%d Stück)',
+                    $wert['ohne_preis_artikel'],
+                    $wert['artikel_gesamt'],
+                    $wert['ohne_preis_menge']
+                )]));
+            }
 
             $writer->addRow(Row::fromValues([]));
             $writer->addRow(Row::fromValues([]));
