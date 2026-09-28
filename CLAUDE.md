@@ -38,6 +38,10 @@ Quer dazu:
 
 Wichtig: Der Bestand wird **redundant** geführt — `stocks.quantity` ist der aktuelle Stand, `stock_movements` die Historie. Jede Bestandsänderung muss beides schreiben, in einer `DB::transaction()` (Vorbild: `StockMovementController::update()`). `Article::getTotalQuantityAttribute()` ist ein `$appends`-Accessor, der pro Zugriff eine eigene Query absetzt — bei Listen vorher `withSum('stocks', 'quantity')` nutzen.
 
+Eine Lagerplatz-Zuordnung wird beim Entfernen nicht mehr stillschweigend gelöscht: ein vorhandener Restbestand wird zuvor als Abgang gebucht (`type = 'out'`, Notiz „Lagerplatz-Zuordnung entfernt“), erst danach verschwindet die `stocks`-Zeile.
+
+Zum Aufspüren und Beheben von Abweichungen zwischen Journal und Bestand gibt es `php artisan lager:abgleichen`. Standardmäßig ist es ein Probelauf, der nur einen Bericht ausgibt; erst mit `--schreiben` werden Korrekturbuchungen (`type = 'correction'`) angelegt. Der Bestand selbst wird dabei nie verändert.
+
 Das gesamte Schema liegt in einer einzigen Migration: `database/migrations/2024_12_08_145642_create_datastructure.php`.
 
 `Supplier` (Soft-Delete) hängt quer an `Article` über die Pivot-Tabelle `article_supplier` (`price`, `is_default`) — pro Artikel genau ein Standard-Lieferant, erzwungen in `ArticleSupplierController`, da MySQL keine partiellen Unique-Indizes kennt. `StockMovement` trägt zusätzlich `supplier_id` (nullable, nur bei `in`/`out` gesetzt; `correction` bleibt ohne Lieferant). `BalanceReportService::build()` liest daraus die Bestandsbilanz für einen Zeitraum: gruppiert nach Artikel, Lieferant und Stückpreis, mit Zwischensummen je Artikel und einer Gesamtsumme.

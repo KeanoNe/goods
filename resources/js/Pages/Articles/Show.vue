@@ -297,11 +297,7 @@
                                     <td
                                         class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                                     >
-                                        {{
-                                            movement.type == "in"
-                                                ? "Einlagerung"
-                                                : "Auslagerung"
-                                        }}
+                                        {{ getMovementTypeLabel(movement.type) }}
                                     </td>
                                     <td
                                         class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
@@ -705,5 +701,16 @@ const submitCorrection = () => {
 
 const formatDate = (date) => {
     return new Date(date).toLocaleString("de-DE");
+};
+
+const getMovementTypeLabel = (type) => {
+    return (
+        {
+            in: "Einlagerung",
+            out: "Auslagerung",
+            transfer: "Umlagerung",
+            correction: "Korrektur",
+        }[type] || type
+    );
 };
 </script>
