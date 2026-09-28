@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class StockMovement extends Model
 {
@@ -44,5 +46,29 @@ class StockMovement extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Netto-Bestand je Artikel laut Bewegungsjournal.
+     *
+     * Ein transfer verschiebt nur zwischen Lagerplätzen und verändert den
+     * Artikelbestand nicht. Korrekturen zählen mit, anders als in der
+     * Bilanz: hier geht es darum, ob Journal und Bestand zusammenpassen,
+     * nicht um den Warenfluss eines Zeitraums.
+     *
+     * @return Collection<int, int> Schlüssel ist die article_id
+     */
+    public static function journalstaende(): Collection
+    {
+        return DB::table('stock_movements')
+            ->selectRaw('article_id')
+            ->selectRaw("sum(case
+                when type = 'in' then quantity
+                when type = 'out' then -quantity
+                when type = 'correction' and to_storage_location_id is not null then quantity
+                when type = 'correction' and from_storage_location_id is not null then -quantity
+                else 0 end) as netto")
+            ->groupBy('article_id')
+            ->pluck('netto', 'article_id');
     }
 }
