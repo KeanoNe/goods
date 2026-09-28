@@ -122,7 +122,7 @@ class BalanceReportPageTest extends TestCase
         ]);
 
         $lieferant = Supplier::factory()->create(['name' => 'Mueller']);
-        $article->suppliers()->attach($lieferant->id, ['price' => 2.00, 'is_default' => true]);
+        $article->suppliers()->attach($lieferant->id, ['price' => 1.99, 'is_default' => true]);
 
         $response = $this->get(route('reports.balance.index'));
 
@@ -132,7 +132,7 @@ class BalanceReportPageTest extends TestCase
             ->has('bestandswert.articles', 1)
             ->where('bestandswert.articles.0.sku', 'SKU-7')
             ->where('bestandswert.articles.0.rows.0.quantity', 50)
-            ->where('bestandswert.grandTotal', fn ($wert) => (float) $wert === 100.0)
+            ->where('bestandswert.grandTotal', 99.5)
             ->where('bestandswert.ohnePreisArtikel', 0)
             ->where('bestandswert.artikelGesamt', 1)
         );
