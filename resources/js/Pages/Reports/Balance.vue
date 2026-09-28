@@ -240,10 +240,12 @@
                                         colspan="6"
                                         class="px-4 pb-3 text-right text-sm text-gray-500"
                                     >
-                                        davon ohne hinterlegten Preis:
-                                        {{ bestandswert.ohnePreisArtikel }} von
-                                        {{ bestandswert.artikelGesamt }} Artikeln
-                                        ({{ bestandswert.ohnePreisMenge }} Stück)
+                                        Für {{ bestandswert.ohnePreisArtikel }} von
+                                        {{ bestandswert.artikelGesamt }} Artikeln ({{
+                                            bestandswert.ohnePreisMenge.toLocaleString("de-DE")
+                                        }}
+                                        Stück) ist kein Preis hinterlegt; der Gesamtwert
+                                        ist insoweit unvollständig.
                                     </td>
                                 </tr>
                             </tfoot>

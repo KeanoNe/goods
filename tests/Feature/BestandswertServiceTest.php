@@ -233,6 +233,26 @@ class BestandswertServiceTest extends TestCase
         $this->assertSame($artikel['subtotal'], $wert['grand_total']);
     }
 
+    public function test_name_eines_geloeschten_lieferanten_bleibt_erhalten(): void
+    {
+        $article = Article::factory()->create();
+        $location = StorageLocation::factory()->create();
+        Stock::factory()->create([
+            'article_id' => $article->id,
+            'storage_location_id' => $location->id,
+            'quantity' => 30,
+        ]);
+
+        $lieferant = Supplier::factory()->create(['name' => 'Mueller']);
+        $this->zugang($article, $location, $lieferant, 30, 1.50, '2026-01-10');
+        $lieferant->delete();
+
+        $zeilen = $this->service->build()['articles'][0]['rows'];
+
+        $this->assertCount(1, $zeilen);
+        $this->assertSame('Mueller', $zeilen[0]['supplier']);
+    }
+
     public function test_ohne_bestand_ist_der_bericht_leer(): void
     {
         $wert = $this->service->build();

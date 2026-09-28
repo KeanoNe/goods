@@ -212,6 +212,7 @@ class BalanceReportExportTest extends TestCase
         $ersteSpalte = array_map(fn ($zeile) => (string) ($zeile[0] ?? ''), $zeilen);
 
         $this->assertContains('Im gewählten Zeitraum gibt es keine Bestandsbewegungen', $ersteSpalte);
+        $this->assertContains('Derzeit liegt kein Bestand im Lager', $ersteSpalte);
     }
 
     protected function bewegungAnlegen(): void
@@ -246,7 +247,7 @@ class BalanceReportExportTest extends TestCase
         $this->assertStringContainsString('Gesamtwert des Lagers', $html);
         $this->assertStringContainsString('SKU-B', $html);
         $this->assertStringContainsString('100,00', $html);
-        $this->assertStringContainsString('davon ohne hinterlegten Preis', $html);
+        $this->assertStringContainsString('ist kein Preis hinterlegt', $html);
     }
 
     public function test_xlsx_enthaelt_den_bestandswert(): void

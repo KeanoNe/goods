@@ -112,9 +112,10 @@
             @if ($bestandswert['ohne_preis_artikel'] > 0)
                 <tr class="fussnote">
                     <td colspan="6" class="rechts">
-                        davon ohne hinterlegten Preis: {{ $bestandswert['ohne_preis_artikel'] }}
+                        F&uuml;r {{ $bestandswert['ohne_preis_artikel'] }}
                         von {{ $bestandswert['artikel_gesamt'] }} Artikeln
                         ({{ number_format($bestandswert['ohne_preis_menge'], 0, ',', '.') }} St&uuml;ck)
+                        ist kein Preis hinterlegt; der Gesamtwert ist insoweit unvollst&auml;ndig.
                     </td>
                 </tr>
             @endif

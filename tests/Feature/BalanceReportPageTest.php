@@ -138,6 +138,29 @@ class BalanceReportPageTest extends TestCase
         );
     }
 
+    public function test_bei_vollstaendig_bepreisten_artikeln_fehlt_die_fussnote(): void
+    {
+        $article = Article::factory()->create(['sku' => 'SKU-7', 'name' => 'Mutter']);
+        $location = StorageLocation::factory()->create();
+        Stock::factory()->create([
+            'article_id' => $article->id,
+            'storage_location_id' => $location->id,
+            'quantity' => 50,
+        ]);
+
+        $lieferant = Supplier::factory()->create(['name' => 'Mueller']);
+        $article->suppliers()->attach($lieferant->id, ['price' => 1.99, 'is_default' => true]);
+
+        $response = $this->get(route('reports.balance.index'));
+
+        $response->assertOk();
+        $response->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Reports/Balance')
+            ->where('bestandswert.ohnePreisArtikel', 0)
+            ->where('bestandswert.ohnePreisMenge', 0)
+        );
+    }
+
     public function test_der_bestandswert_haengt_nicht_am_zeitraum(): void
     {
         $article = Article::factory()->create();

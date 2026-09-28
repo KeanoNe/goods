@@ -63,6 +63,14 @@ class BestandswertService
             ->get()
             ->keyBy('id');
 
+        // Bekannte Grenze: Dies lädt das gesamte Eingangsjournal der
+        // betroffenen Artikel auf einmal in den Speicher, bei jedem Aufruf
+        // der Bilanzseite und jedem Export. Das frühe `break` in der
+        // Zuordnungsschleife spart nur die Schleife, nicht diese Abfrage.
+        // Aktuell unkritisch (rund 3.940 Bewegungen insgesamt), aber der
+        // einzige Teil dieses Features, der mit der Historie statt mit der
+        // Artikelzahl wächst.
+        //
         // Eingangsbuchungen mit Lieferant, jüngste zuerst. Der Join auf
         // suppliers läuft bewusst über den Query Builder, damit auch der
         // Name eines inzwischen gelöschten Lieferanten erhalten bleibt.
@@ -70,6 +78,12 @@ class BestandswertService
             ->join('suppliers', 'suppliers.id', '=', 'stock_movements.supplier_id')
             ->whereIn('stock_movements.article_id', $artikelIds)
             ->where('stock_movements.type', 'in')
+            // Ein Zugang ohne Stückpreis lässt sich nicht bewerten und wird
+            // hier ausgeschlossen, statt ihn mit 0,00 € zu bepreisen — seine
+            // Menge fällt dadurch in die "Ohne Lieferant"-Restzeile und wird
+            // dort entweder mit dem Standardpreis bewertet oder korrekt in
+            // der Fußnote als unbewertet mitgezählt.
+            ->whereNotNull('stock_movements.unit_price')
             ->orderByDesc('stock_movements.created_at')
             ->orderByDesc('stock_movements.id')
             ->get([
@@ -106,6 +120,16 @@ class BestandswertService
                 }
 
                 $anteil = min((int) $zugang->quantity, $restmenge);
+
+                // Schutz vor einer negativen Buchungsmenge: Sie würde die
+                // Restmenge statt sie zu verringern erhöhen und eine Zeile
+                // mit negativer Menge erzeugen. Heute unerreichbar, da jede
+                // schreibende Stelle nur positive Mengen zulässt — die
+                // Spalte selbst erlaubt das aber nicht auszuschließen.
+                if ($anteil <= 0) {
+                    continue;
+                }
+
                 $restmenge -= $anteil;
 
                 $schluessel = $zugang->lieferant.'|'.(string) $zugang->unit_price;

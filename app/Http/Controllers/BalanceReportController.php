@@ -175,10 +175,10 @@ class BalanceReportController extends Controller
 
             if ($wert['ohne_preis_artikel'] > 0) {
                 $writer->addRow(Row::fromValues(['', sprintf(
-                    'davon ohne hinterlegten Preis: %d von %d Artikeln (%d Stück)',
+                    'Für %d von %d Artikeln (%s Stück) ist kein Preis hinterlegt; der Gesamtwert ist insoweit unvollständig.',
                     $wert['ohne_preis_artikel'],
                     $wert['artikel_gesamt'],
-                    $wert['ohne_preis_menge']
+                    number_format($wert['ohne_preis_menge'], 0, ',', '.')
                 )]));
             }
 
