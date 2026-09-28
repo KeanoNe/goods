@@ -79,12 +79,47 @@ class ArticleStorageLocationTransaktionTest extends TestCase
         ]);
     }
 
-    public function test_scheitert_die_buchung_bleibt_auch_der_bestand_unveraendert(): void
+    public function test_scheitert_das_loeschen_wird_auch_die_ausbuchung_zurueckgerollt(): void
     {
         [$article, $location] = $this->zuordnungMitBestand(40);
 
-        // Jeden Insert in stock_movements scheitern lassen, um die
-        // Transaktionsklammer zu prüfen.
+        // Beim Entfernen wird zuerst die Ausbuchung geschrieben und danach
+        // der Stock-Satz gelöscht. Nur wenn der zweite (spätere) Schritt
+        // scheitert, prüft das wirklich, ob der erste Schritt zurückgerollt
+        // wird — ein Fehlschlag beim Insert selbst würde diesen Test auch
+        // ohne Transaktionsklammer bestehen lassen.
+        DB::beforeExecuting(function ($query) {
+            if (str_contains($query, 'delete from `stocks`')) {
+                throw new \RuntimeException('Löschen absichtlich fehlgeschlagen');
+            }
+        });
+
+        try {
+            $this->delete(route('articles.storage-locations.destroy', [$article, $location]));
+        } catch (\Throwable) {
+            // erwartet
+        }
+
+        $this->assertDatabaseHas('stocks', [
+            'article_id' => $article->id,
+            'storage_location_id' => $location->id,
+            'quantity' => 40,
+        ]);
+        $this->assertDatabaseMissing('stock_movements', [
+            'article_id' => $article->id,
+            'type' => 'out',
+        ]);
+    }
+
+    public function test_scheitert_die_buchung_beim_zuweisen_bleibt_kein_bestand(): void
+    {
+        $article = Article::factory()->create();
+        $location = StorageLocation::factory()->create();
+
+        // Beim Zuweisen wird zuerst der Stock-Satz angelegt und danach die
+        // Buchung geschrieben. Der Insert in stock_movements ist hier der
+        // spätere Schritt, dessen Fehlschlag den bereits angelegten
+        // Stock-Satz zurückrollen muss.
         DB::beforeExecuting(function ($query) {
             if (str_contains($query, 'insert into `stock_movements`')) {
                 throw new \RuntimeException('Buchung absichtlich fehlgeschlagen');
@@ -92,7 +127,38 @@ class ArticleStorageLocationTransaktionTest extends TestCase
         });
 
         try {
-            $this->delete(route('articles.storage-locations.destroy', [$article, $location]));
+            $this->post(route('articles.storage-locations.store', $article), [
+                'storage_location_id' => $location->id,
+                'quantity' => 40,
+            ]);
+        } catch (\Throwable) {
+            // erwartet
+        }
+
+        $this->assertDatabaseMissing('stocks', [
+            'article_id' => $article->id,
+            'storage_location_id' => $location->id,
+        ]);
+    }
+
+    public function test_scheitert_die_buchung_bei_der_korrektur_bleibt_der_alte_bestand(): void
+    {
+        [$article, $location] = $this->zuordnungMitBestand(40);
+
+        // Bei der Korrektur wird zuerst der Stock-Satz aktualisiert und
+        // danach die Buchung geschrieben. Der Insert in stock_movements ist
+        // hier der spätere Schritt, dessen Fehlschlag die bereits
+        // geschriebene Mengenänderung zurückrollen muss.
+        DB::beforeExecuting(function ($query) {
+            if (str_contains($query, 'insert into `stock_movements`')) {
+                throw new \RuntimeException('Buchung absichtlich fehlgeschlagen');
+            }
+        });
+
+        try {
+            $this->post(route('articles.storage-locations.correction', [$article, $location]), [
+                'new_quantity' => 90,
+            ]);
         } catch (\Throwable) {
             // erwartet
         }
