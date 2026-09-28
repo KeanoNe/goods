@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Article;
+use App\Models\Stock;
 use App\Models\StockMovement;
+use App\Models\StorageLocation;
 use App\Models\Supplier;
 use App\Models\User;
 use Carbon\Carbon;
@@ -107,5 +109,75 @@ class BalanceReportPageTest extends TestCase
         auth()->logout();
 
         $this->get(route('reports.balance.index'))->assertRedirect(route('login'));
+    }
+
+    public function test_die_seite_liefert_den_bestandswert(): void
+    {
+        $article = Article::factory()->create(['sku' => 'SKU-7', 'name' => 'Mutter']);
+        $location = StorageLocation::factory()->create();
+        Stock::factory()->create([
+            'article_id' => $article->id,
+            'storage_location_id' => $location->id,
+            'quantity' => 50,
+        ]);
+
+        $lieferant = Supplier::factory()->create(['name' => 'Mueller']);
+        $article->suppliers()->attach($lieferant->id, ['price' => 1.99, 'is_default' => true]);
+
+        $response = $this->get(route('reports.balance.index'));
+
+        $response->assertOk();
+        $response->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Reports/Balance')
+            ->has('bestandswert.articles', 1)
+            ->where('bestandswert.articles.0.sku', 'SKU-7')
+            ->where('bestandswert.articles.0.rows.0.quantity', 50)
+            ->where('bestandswert.grandTotal', 99.5)
+            ->where('bestandswert.ohnePreisArtikel', 0)
+            ->where('bestandswert.artikelGesamt', 1)
+        );
+    }
+
+    public function test_bei_vollstaendig_bepreisten_artikeln_fehlt_die_fussnote(): void
+    {
+        $article = Article::factory()->create(['sku' => 'SKU-7', 'name' => 'Mutter']);
+        $location = StorageLocation::factory()->create();
+        Stock::factory()->create([
+            'article_id' => $article->id,
+            'storage_location_id' => $location->id,
+            'quantity' => 50,
+        ]);
+
+        $lieferant = Supplier::factory()->create(['name' => 'Mueller']);
+        $article->suppliers()->attach($lieferant->id, ['price' => 1.99, 'is_default' => true]);
+
+        $response = $this->get(route('reports.balance.index'));
+
+        $response->assertOk();
+        $response->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Reports/Balance')
+            ->where('bestandswert.ohnePreisArtikel', 0)
+            ->where('bestandswert.ohnePreisMenge', 0)
+        );
+    }
+
+    public function test_der_bestandswert_haengt_nicht_am_zeitraum(): void
+    {
+        $article = Article::factory()->create();
+        Stock::factory()->create(['article_id' => $article->id, 'quantity' => 25]);
+
+        // Zeitraum ohne jede Bewegung: der Bewegungsteil bleibt leer, der
+        // Bestandswert zeigt das Lager trotzdem vollständig.
+        $response = $this->get(route('reports.balance.index', [
+            'from' => '2020-01-01',
+            'to' => '2020-01-02',
+        ]));
+
+        $response->assertOk();
+        $response->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('articles', 0)
+            ->has('bestandswert.articles', 1)
+            ->where('bestandswert.articles.0.rows.0.quantity', 25)
+        );
     }
 }

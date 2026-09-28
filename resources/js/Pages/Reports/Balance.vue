@@ -138,6 +138,120 @@
                         </table>
                     </div>
                 </div>
+
+                <div
+                    class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6 mt-6"
+                >
+                    <h3 class="text-lg font-medium text-gray-900 mb-1">
+                        Bestandswert zum
+                        {{ datum(bestandswert.stichtag) }}
+                    </h3>
+                    <p class="text-sm text-gray-500 mb-6">
+                        Momentaufnahme des Lagers, unabhängig vom gewählten
+                        Zeitraum.
+                    </p>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Artikelnummer
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Bezeichnung
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Lieferant
+                                    </th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Menge
+                                    </th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Stückpreis
+                                    </th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Wert
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <template
+                                    v-for="artikel in bestandswert.articles"
+                                    :key="artikel.article_id"
+                                >
+                                    <tr
+                                        v-for="(zeile, index) in artikel.rows"
+                                        :key="artikel.article_id + '-' + index"
+                                        :class="zeile.ohne_lieferant ? 'text-gray-500' : ''"
+                                    >
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            {{ index === 0 ? artikel.sku : "" }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <template v-if="index === 0">
+                                                {{ artikel.name }}
+                                                <span
+                                                    v-if="artikel.geloescht"
+                                                    class="text-xs text-red-600"
+                                                    >(gelöscht)</span
+                                                >
+                                            </template>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            {{ zeile.supplier }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-right">
+                                            {{ zeile.quantity }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-right">
+                                            {{ waehrung(zeile.unit_price) }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-right">
+                                            {{ waehrung(zeile.total) }}
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-gray-50 font-medium">
+                                        <td colspan="5" class="px-4 py-2 text-right">
+                                            Zwischensumme {{ artikel.name }}
+                                        </td>
+                                        <td class="px-4 py-2 text-right">
+                                            {{ waehrung(artikel.subtotal) }}
+                                        </td>
+                                    </tr>
+                                </template>
+                                <tr v-if="bestandswert.articles.length === 0">
+                                    <td colspan="6" class="px-4 py-4 text-center text-gray-500">
+                                        Derzeit liegt kein Bestand im Lager
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="border-t-2 border-gray-300 font-semibold">
+                                    <td colspan="5" class="px-4 py-3 text-right">
+                                        Gesamtwert des Lagers
+                                    </td>
+                                    <td class="px-4 py-3 text-right">
+                                        {{ waehrung(bestandswert.grandTotal) }}
+                                    </td>
+                                </tr>
+                                <tr v-if="bestandswert.ohnePreisArtikel > 0">
+                                    <td
+                                        colspan="6"
+                                        class="px-4 pb-3 text-right text-sm text-gray-500"
+                                    >
+                                        Für {{ bestandswert.ohnePreisArtikel }} von
+                                        {{ bestandswert.artikelGesamt }} Artikeln ({{
+                                            bestandswert.ohnePreisMenge.toLocaleString("de-DE")
+                                        }}
+                                        Stück) ist kein Preis hinterlegt; der Gesamtwert
+                                        ist insoweit unvollständig.
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </AppLayout>
@@ -153,6 +267,7 @@ const props = defineProps({
     to: String,
     articles: Array,
     grandTotal: Number,
+    bestandswert: Object,
 });
 
 const page = usePage();
@@ -210,4 +325,7 @@ const waehrung = (wert) =>
         style: "currency",
         currency: "EUR",
     }).format(wert);
+
+const datum = (wert) =>
+    new Intl.DateTimeFormat("de-DE").format(new Date(wert));
 </script>

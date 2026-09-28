@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\Article;
+use App\Models\Stock;
 use App\Models\StockMovement;
+use App\Models\StorageLocation;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Services\BalanceReportService;
+use App\Services\BestandswertService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use OpenSpout\Reader\XLSX\Reader;
@@ -47,6 +50,7 @@ class BalanceReportExportTest extends TestCase
             Carbon::parse('2026-01-01'),
             Carbon::parse('2026-01-31')
         );
+        $bericht['bestandswert'] = app(BestandswertService::class)->build();
 
         $html = view('reports.balance', $bericht)->render();
 
@@ -170,10 +174,12 @@ class BalanceReportExportTest extends TestCase
             Carbon::parse('2026-01-01'),
             Carbon::parse('2026-01-31')
         );
+        $bericht['bestandswert'] = app(BestandswertService::class)->build();
 
         $html = view('reports.balance', $bericht)->render();
 
         $this->assertStringContainsString('Im gew&auml;hlten Zeitraum gibt es keine Bestandsbewegungen', $html);
+        $this->assertStringContainsString('Derzeit liegt kein Bestand im Lager', $html);
     }
 
     public function test_xlsx_ohne_bewegungen_zeigt_leerhinweis(): void
@@ -206,6 +212,7 @@ class BalanceReportExportTest extends TestCase
         $ersteSpalte = array_map(fn ($zeile) => (string) ($zeile[0] ?? ''), $zeilen);
 
         $this->assertContains('Im gewählten Zeitraum gibt es keine Bestandsbewegungen', $ersteSpalte);
+        $this->assertContains('Derzeit liegt kein Bestand im Lager', $ersteSpalte);
     }
 
     protected function bewegungAnlegen(): void
@@ -220,6 +227,101 @@ class BalanceReportExportTest extends TestCase
             'quantity' => 10,
             'unit_price' => 2.00,
             'created_at' => Carbon::parse('2026-01-15'),
+        ]);
+    }
+
+    public function test_pdf_view_enthaelt_den_bestandswert(): void
+    {
+        $this->bestandAnlegen();
+
+        $bericht = app(BalanceReportService::class)->build(
+            Carbon::parse('2026-01-01'),
+            Carbon::parse('2026-01-31')
+        );
+        $wert = app(BestandswertService::class)->build();
+
+        $html = view('reports.balance', array_merge($bericht, ['bestandswert' => $wert]))->render();
+
+        $this->assertStringContainsString('Bestandswert zum', $html);
+        $this->assertStringContainsString('zeitraumunabh', $html);
+        $this->assertStringContainsString('Gesamtwert des Lagers', $html);
+        $this->assertStringContainsString('SKU-B', $html);
+        $this->assertStringContainsString('100,00', $html);
+        $this->assertStringContainsString('ist kein Preis hinterlegt', $html);
+    }
+
+    public function test_xlsx_enthaelt_den_bestandswert(): void
+    {
+        $this->bestandAnlegen();
+
+        $response = $this->get(route('reports.balance.export', [
+            'from' => '2026-01-01',
+            'to' => '2026-01-31',
+            'format' => 'xlsx',
+        ]));
+
+        $response->assertOk();
+
+        $pfad = tempnam(sys_get_temp_dir(), 'bilanz');
+        file_put_contents($pfad, $response->streamedContent());
+
+        try {
+            $zeilen = [];
+            $reader = new Reader;
+            $reader->open($pfad);
+
+            foreach ($reader->getSheetIterator() as $sheet) {
+                foreach ($sheet->getRowIterator() as $row) {
+                    $zeilen[] = $row->toArray();
+                }
+            }
+
+            $reader->close();
+        } finally {
+            unlink($pfad);
+        }
+
+        $ersteSpalte = array_map(fn ($zeile) => (string) ($zeile[0] ?? ''), $zeilen);
+        $zweiteSpalte = array_map(fn ($zeile) => (string) ($zeile[1] ?? ''), $zeilen);
+
+        $this->assertNotEmpty(array_filter(
+            $ersteSpalte,
+            fn (string $z) => str_contains($z, 'Bestandswert zum')
+        ));
+        $this->assertContains('SKU-B', $ersteSpalte);
+        $this->assertContains('Gesamtwert des Lagers', $zweiteSpalte);
+
+        $summenzeile = collect($zeilen)->first(
+            fn ($zeile) => ($zeile[1] ?? null) === 'Gesamtwert des Lagers'
+        );
+
+        $this->assertEquals(100.0, $summenzeile[5]);
+    }
+
+    /**
+     * Legt einen Artikel mit Bestand und Standardpreis an, der im
+     * Bewegungsteil nicht vorkommt, sowie einen zweiten Artikel ohne
+     * hinterlegten Preis, damit auch die Fußnote zur unbewerteten
+     * Restmenge im Dokument erscheint.
+     */
+    private function bestandAnlegen(): void
+    {
+        $article = Article::factory()->create(['sku' => 'SKU-B', 'name' => 'Bolzen']);
+        $location = StorageLocation::factory()->create();
+
+        Stock::factory()->create([
+            'article_id' => $article->id,
+            'storage_location_id' => $location->id,
+            'quantity' => 50,
+        ]);
+
+        $lieferant = Supplier::factory()->create(['name' => 'Mueller']);
+        $article->suppliers()->attach($lieferant->id, ['price' => 2.00, 'is_default' => true]);
+
+        $ohnePreis = Article::factory()->create(['sku' => 'SKU-A', 'name' => 'Unterlegscheibe']);
+        Stock::factory()->create([
+            'article_id' => $ohnePreis->id,
+            'quantity' => 20,
         ]);
     }
 }

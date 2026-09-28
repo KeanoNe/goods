@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\BalanceReportService;
+use App\Services\BestandswertService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,19 +14,31 @@ use OpenSpout\Writer\XLSX\Writer;
 
 class BalanceReportController extends Controller
 {
-    public function __construct(private BalanceReportService $balanceReport) {}
+    public function __construct(
+        private BalanceReportService $balanceReport,
+        private BestandswertService $bestandswert,
+    ) {}
 
     public function index(Request $request)
     {
         [$from, $to] = $this->zeitraum($request);
 
         $bericht = $this->balanceReport->build($from, $to);
+        $wert = $this->bestandswert->build();
 
         return Inertia::render('Reports/Balance', [
             'from' => $from->toDateString(),
             'to' => $to->toDateString(),
             'articles' => $bericht['articles'],
             'grandTotal' => $bericht['grand_total'],
+            'bestandswert' => [
+                'stichtag' => $wert['stichtag']->toDateString(),
+                'articles' => $wert['articles'],
+                'grandTotal' => $wert['grand_total'],
+                'ohnePreisArtikel' => $wert['ohne_preis_artikel'],
+                'ohnePreisMenge' => $wert['ohne_preis_menge'],
+                'artikelGesamt' => $wert['artikel_gesamt'],
+            ],
         ]);
     }
 
@@ -41,6 +54,7 @@ class BalanceReportController extends Controller
         $to = Carbon::parse($validated['to'])->endOfDay();
 
         $bericht = $this->balanceReport->build($from, $to);
+        $bericht['bestandswert'] = $this->bestandswert->build();
 
         $dateiname = sprintf(
             'bilanz_%s_bis_%s',
@@ -114,6 +128,59 @@ class BalanceReportController extends Controller
                 ['', 'Gesamtsumme', '', '', '', $bericht['grand_total']],
                 $fett
             ));
+
+            $wert = $bericht['bestandswert'];
+
+            $writer->addRow(Row::fromValues([]));
+            $writer->addRow(Row::fromValuesWithStyle(
+                ['Bestandswert zum '.$wert['stichtag']->format('d.m.Y')],
+                $fett
+            ));
+            $writer->addRow(Row::fromValues(['Momentaufnahme des Lagers, zeitraumunabhängig.']));
+            $writer->addRow(Row::fromValues([]));
+
+            $writer->addRow(Row::fromValuesWithStyle(
+                ['Artikelnummer', 'Bezeichnung', 'Lieferant', 'Menge', 'Stückpreis', 'Wert'],
+                $fett
+            ));
+
+            if ($wert['articles'] === []) {
+                $writer->addRow(Row::fromValues(['Derzeit liegt kein Bestand im Lager']));
+            }
+
+            foreach ($wert['articles'] as $artikel) {
+                foreach ($artikel['rows'] as $index => $zeile) {
+                    $writer->addRow(Row::fromValues([
+                        $index === 0 ? $artikel['sku'] : '',
+                        $index === 0
+                            ? $artikel['name'].($artikel['geloescht'] ? ' (gelöscht)' : '')
+                            : '',
+                        $zeile['supplier'],
+                        $zeile['quantity'],
+                        $zeile['unit_price'],
+                        $zeile['total'],
+                    ]));
+                }
+
+                $writer->addRow(Row::fromValuesWithStyle(
+                    ['', 'Zwischensumme '.$artikel['name'], '', '', '', $artikel['subtotal']],
+                    $fett
+                ));
+            }
+
+            $writer->addRow(Row::fromValuesWithStyle(
+                ['', 'Gesamtwert des Lagers', '', '', '', $wert['grand_total']],
+                $fett
+            ));
+
+            if ($wert['ohne_preis_artikel'] > 0) {
+                $writer->addRow(Row::fromValues(['', sprintf(
+                    'Für %d von %d Artikeln (%s Stück) ist kein Preis hinterlegt; der Gesamtwert ist insoweit unvollständig.',
+                    $wert['ohne_preis_artikel'],
+                    $wert['artikel_gesamt'],
+                    number_format($wert['ohne_preis_menge'], 0, ',', '.')
+                )]));
+            }
 
             $writer->addRow(Row::fromValues([]));
             $writer->addRow(Row::fromValues([]));
